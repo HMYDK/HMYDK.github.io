@@ -1,0 +1,878 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="HMYDK">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="rebase基础介绍git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。 git merge 作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。 优点：简单易上手&#x2F;保留了提交历史和时间次序&#x2F;分支结构不变 缺点：提交历史被大量的merge操作污染&#x2F;git bisect调试困难 git reba">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git-rebase入门教程">
+<meta property="og:url" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="HMYDK">
+<meta property="og:description" content="rebase基础介绍git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。 git merge 作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。 优点：简单易上手&#x2F;保留了提交历史和时间次序&#x2F;分支结构不变 缺点：提交历史被大量的merge操作污染&#x2F;git bisect调试困难 git reba">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/rebse-merge.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808225537689.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase.gif">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233344850.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233945968.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase-lisi-fix2.gif">
+<meta property="article:published_time" content="2022-03-08T06:40:12.000Z">
+<meta property="article:modified_time" content="2022-03-08T07:45:04.700Z">
+<meta property="article:author" content="HMYDK">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg">
+  
+  
+  <title>git-rebase入门教程 - HMYDK</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"hmydk.github.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"xd4CQ1dkKzB1Xrx4ut9WmQwR-gzGzoHsz","app_key":"p61496GWF6riYNUzsenO0hJA","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HMYDK</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="git-rebase入门教程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-08 14:40" pubdate>
+          2022年3月8日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          44 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span>次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">git-rebase入门教程</h1>
+            
+            <div class="markdown-body">
+              
+              <img src="https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg" srcset="/img/loading.gif" lazyload style="zoom: 150%;" />
+
+
+
+<h2 id="rebase基础介绍"><a href="#rebase基础介绍" class="headerlink" title="rebase基础介绍"></a>rebase基础介绍</h2><p>git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。</p>
+<p><strong>git merge</strong></p>
+<p>作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。</p>
+<p>优点：简单易上手/保留了提交历史和时间次序/分支结构不变</p>
+<p>缺点：提交历史被大量的merge操作污染/<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2018/12/git-bisect.html">git bisect</a>调试困难</p>
+<p><strong>git rebase</strong></p>
+<p>作用：清除了历史，将一个分支完全转移到了目标分支</p>
+<p>优点：复杂的历史变成优雅的提交线</p>
+<p>缺点：分支上下文模糊了/dev分支以及feature分支需要经常更新release分支变动到本地</p>
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/rebse-merge.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+
+
+
+
+
+
+<h2 id="使用rebase时，正确的git-flow是怎样的"><a href="#使用rebase时，正确的git-flow是怎样的" class="headerlink" title="使用rebase时，正确的git flow是怎样的"></a>使用rebase时，正确的git flow是怎样的</h2><ul>
+<li>每个feature分支都有单独的分支负责人，分支负责人需要在feature分支开发过程中每天rebase  release分支，同时告诉feature分支的自开发分支，及时跟进更新。</li>
+<li>feature子分支开发人员需要在开发完自己的任务之后，将自己分支的点合并成一个点，然后合并到feature分支。</li>
+<li>feature分支负责人在确定所有子分支都已开发完毕并且都压点后合并到feature分支后，交付测试验收。</li>
+<li>测试验收通过后将feature到release分支等待上线。</li>
+</ul>
+<h3 id="1-feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。"><a href="#1-feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。" class="headerlink" title="1.feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。"></a>1.<strong>feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。</strong></h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git checkout -b feature-xxx</span><br><span class="hljs-meta">$ </span><span class="language-bash">git push --set-upstream origin feature-xxx</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-feature开发人员拉出属于自己的业务开发分支"><a href="#2-feature开发人员拉出属于自己的业务开发分支" class="headerlink" title="2.feature开发人员拉出属于自己的业务开发分支"></a>2.<strong>feature开发人员拉出属于自己的业务开发分支</strong></h3><p>张三</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git checkout -b feature-xxx-zhangsan</span><br><span class="hljs-meta">$ </span><span class="language-bash">git push --set-upstream origin feature-xxx-zhangsan</span><br></code></pre></td></tr></table></figure>
+
+<p>李四</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git checkout -b feature-xxx-lisi</span><br><span class="hljs-meta">$ </span><span class="language-bash">git push --set-upstream origin feature-xxx-lisi</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-feature开发人员开始做业务开发"><a href="#3-feature开发人员开始做业务开发" class="headerlink" title="3.feature开发人员开始做业务开发"></a>3.<strong>feature开发人员开始做业务开发</strong></h3><p>张三</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git add .</span><br><span class="hljs-meta">$ </span><span class="language-bash">git commit -m <span class="hljs-string">&#x27;张三提交1&#x27;</span></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git add .</span><br><span class="hljs-meta">$ </span><span class="language-bash">git commit -m <span class="hljs-string">&#x27;张三提交2&#x27;</span></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+<p>李四</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git add .</span><br><span class="hljs-meta">$ </span><span class="language-bash">git commit -m <span class="hljs-string">&#x27;李四提交1&#x27;</span></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git add .</span><br><span class="hljs-meta">$ </span><span class="language-bash">git commit -m <span class="hljs-string">&#x27;李四提交2&#x27;</span></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808225537689.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+<h3 id="4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"><a href="#4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点" class="headerlink" title="4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"></a>4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git rebase -i 292141c  5b43fa0</span><br>-------------------------<br>pick 6e48844 张三提交1<br>pick 5f8e351 张三提交2     //进入编辑模式将第二行开始的pick全部修改成s，然后esc :wq保存，进入commit msg界面做整理<br><span class="hljs-meta"></span><br><span class="hljs-meta"># </span><span class="language-bash">Rebase 356a5c0..5f8e351 onto 356a5c0 (2 commands)</span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Commands:</span></span><br><span class="hljs-meta"># </span><span class="language-bash">p, pick &lt;commit&gt; = use commit</span><br><span class="hljs-meta"># </span><span class="language-bash">r, reword &lt;commit&gt; = use commit, but edit the commit message</span><br><span class="hljs-meta"># </span><span class="language-bash">e, edit &lt;commit&gt; = use commit, but stop <span class="hljs-keyword">for</span> amending</span><br><span class="hljs-meta"># </span><span class="language-bash">s, squash &lt;commit&gt; = use commit, but meld into previous commit</span><br><span class="hljs-meta"># </span><span class="language-bash">f, fixup &lt;commit&gt; = like <span class="hljs-string">&quot;squash&quot;</span>, but discard this commit<span class="hljs-string">&#x27;s log message</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">x, exec &lt;command&gt; = run command (the rest of the line) using shell</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">b, break = stop here (continue rebase later with &#x27;</span>git rebase --<span class="hljs-built_in">continue</span><span class="hljs-string">&#x27;)</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">d, drop &lt;commit&gt; = remove commit</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">l, label &lt;label&gt; = label current HEAD with a name</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">t, reset &lt;label&gt; = reset HEAD to a label</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">m, merge [-C &lt;commit&gt; | -c &lt;commit&gt;] &lt;label&gt; [# &lt;oneline&gt;]</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">.       create a merge commit using the original merge commit&#x27;</span>s</span><br><span class="hljs-meta"># </span><span class="language-bash">.       message (or the oneline, <span class="hljs-keyword">if</span> no original merge commit was</span><br><span class="hljs-meta"># </span><span class="language-bash">.       specified). Use -c &lt;commit&gt; to reword the commit message.</span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># These lines can be re-ordered; they are executed from top to bottom.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># If you remove a line here THAT COMMIT WILL BE LOST.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># However, if you remove everything, the rebase will be aborted.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"></span><br><br></code></pre></td></tr></table></figure>
+
+
+
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+
+
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233344850.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git status</span><br>On branch feature-xxx-zhangsan<br>Your branch and &#x27;origin/feature-xxx-zhangsan&#x27; have diverged,<br>and have 1 and 2 different commits each, respectively.<br>  (use &quot;git pull&quot; to merge the remote branch into yours)<br><br>nothing to commit, working tree clean<br><br></code></pre></td></tr></table></figure>
+
+<p>idea git 中可以看到feature-xxx-zhangsan的本地分支已经将两次提交合并成<strong>一个点</strong></p>
+<blockquote>
+<p>have 1 and 2 different commits each, respectively.</p>
+</blockquote>
+<p>此时需要将本地分支<strong>强推</strong>到远程分支</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git push -f</span> <br></code></pre></td></tr></table></figure>
+
+
+
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233945968.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+
+
+<h3 id="5-合并到feature分支"><a href="#5-合并到feature分支" class="headerlink" title="5.合并到feature分支"></a>5.合并到feature分支</h3><p>先保证本地的feature分支是最新的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git checkout feature-xxx</span><br><span class="hljs-meta">$ </span><span class="language-bash">git pull</span><br><span class="hljs-meta">$ </span><span class="language-bash">git status</span><br></code></pre></td></tr></table></figure>
+
+<p>合并分支</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git rebase feature-xxx-zhangsan feature-xxx</span><br>Successfully rebased and updated refs/heads/feature-xxx.<br><br>注意此时的本地分支已经切换到feature-xxx，也就是rebase命令的第二个参数<br>gir rebase branchA branchB其实会做两件事情<br>	1.git checkout branchB<br>	2.git rebase branchA<br><span class="hljs-meta">$ </span><span class="language-bash">git branch</span><br>* feature-xxx<br>  feature-xxx-lisi<br>  feature-xxx-zhangsan<br>  main<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git status</span><br>On branch feature-xxx<br>Your branch is ahead of &#x27;origin/feature-xxx&#x27; by 1 commit.<br>  (use &quot;git push&quot; to publish your local commits)<br><br>nothing to commit, working tree clean<br></code></pre></td></tr></table></figure>
+
+<p>git status可以看到feature-xxx分支上已经有了feature-xxx-zhangsan分支合并的点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-合并到功能分支的时候出现冲突怎么办"><a href="#6-合并到功能分支的时候出现冲突怎么办" class="headerlink" title="6.合并到功能分支的时候出现冲突怎么办"></a>6.合并到功能分支的时候出现冲突怎么办</h3><p>李四同样走了这个流程但是在合并到feature分支的时候遇到了麻烦，有代码冲突了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git rebase feature-xxx-lisi feature-xxx</span><br>Successfully rebased and updated refs/heads/feature-xxx.<br><span class="hljs-meta"></span><br><span class="hljs-meta">$ </span><span class="language-bash">git status</span><br>On branch feature-xxx<br>Your branch and &#x27;origin/feature-xxx&#x27; have diverged,<br>and have 1 and 1 different commits each, respectively.<br>  (use &quot;git pull&quot; to merge the remote branch into yours)<br><br>nothing to commit, working tree clean<br></code></pre></td></tr></table></figure>
+
+<p>git status看到功能分支feature-xxx有落后，这时候需要拉取落后的代码到本地</p>
+<p>注意这里不要直接使用git pull ，git pull 其实会做两个事情 git fetch + git merge , 会产生git提交记录的环线，这是我们要避免产生的事情。</p>
+<p><strong>请使用git pull –rebase</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git pull --rebase</span><br>error: could not apply 49f99fb... lisi commit all<br>Resolve all conflicts manually, mark them as resolved with<br>&quot;git add/rm &lt;conflicted_files&gt;&quot;, then run &quot;git rebase --continue&quot;.<br>You can instead skip this commit: run &quot;git rebase --skip&quot;.<br>To abort and get back to the state before &quot;git rebase&quot;, run &quot;git rebase --abort&quot;.<br>Could not apply 49f99fb... lisi commit all<br>Auto-merging src/main/java/com/example/leetcode/editor/test/Test.java<br>CONFLICT (content): Merge conflict in src/main/java/com/example/leetcode/editor/test/Test.java<br></code></pre></td></tr></table></figure>
+
+<p>可以看到出现了冲突（CONFLICT），这时候需要到idea中处理冲突</p>
+<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase-lisi-fix2.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git status</span><br>On branch feature-xxx<br>Your branch is ahead of &#x27;origin/feature-xxx&#x27; by 1 commit.<br>  (use &quot;git push&quot; to publish your local commits)<br><br>nothing to commit, working tree clean<br><span class="hljs-meta"></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="rebase常见问题"><a href="#rebase常见问题" class="headerlink" title="rebase常见问题"></a>rebase常见问题</h2><h3 id="1-作为一个feature负责人，发现落后release分支太多了怎么办"><a href="#1-作为一个feature负责人，发现落后release分支太多了怎么办" class="headerlink" title="1.作为一个feature负责人，发现落后release分支太多了怎么办"></a>1.作为一个feature负责人，发现落后release分支太多了怎么办</h3><p>出现这种情况有两种原因：</p>
+<ul>
+<li>feature分支太久没有关注release分支的状态，导致落后release分支太多</li>
+<li>release分支被人无脑提交，没有压点</li>
+</ul>
+<p>第二种情况是要<strong>极力避免</strong>的，这种不负责任的提交很可能导致各个feature分支后续的rebase提交需要解决多次冲突</p>
+<p>第一种情况怎么解决：</p>
+<ul>
+<li>先尝试直接rebase release，如果没有冲突或者只需要解决一两次冲突，那么就采用直接rebase的方式。</li>
+<li>如果rebase release方式有冲突的点很多，那么可以采用将feature分支压点然后切换到release分支使用cherry-pick的方式做代码合并，然后重新创建feature分支，或者set-up-stream重新指向远程feature分支。</li>
+</ul>
+<h3 id="2-有人把开发主干分支压点然后强推了怎么办"><a href="#2-有人把开发主干分支压点然后强推了怎么办" class="headerlink" title="2.有人把开发主干分支压点然后强推了怎么办"></a>2.有人把开发主干分支压点然后强推了怎么办</h3><p><em><strong>注意：使用rebase的方式，如果分支是个公共分支，那么不允许rebase，这会打乱别人本地仓库的git提交线</strong></em></p>
+<h2 id="commit-msg规范"><a href="#commit-msg规范" class="headerlink" title="commit msg规范"></a>commit msg规范</h2><ul>
+<li>feat：新功能（feature）</li>
+<li>fix：bug修复</li>
+<li>refactor：重构</li>
+<li>test：补充单元测试</li>
+<li>docs：补充文档</li>
+<li>style：样式/格式，不影响业务代码 or 逻辑</li>
+</ul>
+<p>提交描述的时候，如果涉及多个内容，则使用1.2.3做标注</p>
+<ol>
+<li>做了什么</li>
+<li>做了什么</li>
+<li>做了什么</li>
+</ol>
+<h2 id="一定要注意的事情"><a href="#一定要注意的事情" class="headerlink" title="一定要注意的事情"></a>一定要注意的事情</h2><ul>
+<li>做任何操作的<strong>前后</strong>都<strong>一定</strong>要 git  status查看工作区状态</li>
+<li>自己的分支可以git push -f ，但是<strong>公共分支，一定不要这么做！</strong></li>
+<li>不要对公共分支做压点操作，<strong>永远不要！</strong></li>
+<li>使用git pull –rebase <strong>一定</strong>是正确的。尽量不要使用git pull，一有冲突就会merge</li>
+</ul>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/git/" class="category-chain-item">git</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/git/">#git</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>git-rebase入门教程</div>
+      <div>https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>HMYDK</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月8日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"xd4CQ1dkKzB1Xrx4ut9WmQwR-gzGzoHsz","appKey":"p61496GWF6riYNUzsenO0hJA","path":"window.location.pathname","placeholder":"说点什么","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问
+        <span id="leancloud-site-pv"></span>
+        次数
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客
+        <span id="leancloud-site-uv"></span>
+        人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
