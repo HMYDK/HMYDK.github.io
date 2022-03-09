@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="摸鱼大师">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="最近看RocketMQ的时候，了解到v4.5.0之后，broker采用遵循raft协议的复制组来实现数据一致性。虎躯一震，raft协议在现在的脑子里变的熟悉又陌生… 问题不大，重新刷一遍raft。 先贴官网：The Raft Consensus Algorithm 再贴动画演示：Raft: Understandable Distributed Consensus ps：里边的动图挺有意思😈 简">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式一致性协议之Raft">
+<meta property="og:url" content="https://hmydk.github.io/2022/03/09/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B9%8BRaft/index.html">
+<meta property="og:site_name" content="摸鱼大师">
+<meta property="og:description" content="最近看RocketMQ的时候，了解到v4.5.0之后，broker采用遵循raft协议的复制组来实现数据一致性。虎躯一震，raft协议在现在的脑子里变的熟悉又陌生… 问题不大，重新刷一遍raft。 先贴官网：The Raft Consensus Algorithm 再贴动画演示：Raft: Understandable Distributed Consensus ps：里边的动图挺有意思😈 简">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raft.github.io/logo/solo.svg">
+<meta property="og:image" content="https://s3.bmp.ovh/imgs/2022/03/4f18033de732207c.png">
+<meta property="og:image" content="https://s3.bmp.ovh/imgs/2022/03/dd72e822d6c9dfc3.png">
+<meta property="og:image" content="https://s3.bmp.ovh/imgs/2022/03/ebe0ba4e35560cd4.png">
+<meta property="og:image" content="https://s3.bmp.ovh/imgs/2022/03/fb6457b7c11d6578.png">
+<meta property="article:published_time" content="2022-03-09T05:44:35.000Z">
+<meta property="article:modified_time" content="2022-03-09T14:28:54.693Z">
+<meta property="article:author" content="摸鱼大师">
+<meta property="article:tag" content="raft">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="一致性协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raft.github.io/logo/solo.svg">
+  
+  
+  <title>分布式一致性协议之Raft - 摸鱼大师</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"hmydk.github.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"xd4CQ1dkKzB1Xrx4ut9WmQwR-gzGzoHsz","app_key":"p61496GWF6riYNUzsenO0hJA","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+
+  
+<meta name="generator" content="Hexo 5.4.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HMYDK</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分布式一致性协议之Raft"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-09 13:44" pubdate>
+          2022年3月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span>次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">分布式一致性协议之Raft</h1>
+            
+            <div class="markdown-body">
+              
+              <p><img src="https://raft.github.io/logo/solo.svg" srcset="/img/loading.gif" lazyload></p>
+<p>最近看<code>RocketMQ</code>的时候，了解到v4.5.0之后，broker采用遵循raft协议的复制组来实现数据一致性。虎躯一震，raft协议在现在的脑子里变的熟悉又陌生…</p>
+<p>问题不大，重新刷一遍raft。</p>
+<p>先贴官网：<a target="_blank" rel="noopener" href="https://raft.github.io/">The Raft Consensus Algorithm</a></p>
+<p>再贴动画演示：<a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft">Raft: Understandable Distributed Consensus</a></p>
+<p>ps：里边的动图挺有意思😈</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ps:来自维基百科</p>
+<blockquote>
+<p><strong>Raft</strong>是一种用于替代<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%85%B1%E8%AD%98%E6%A9%9F%E5%88%B6">共识</a>算法。相比于<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>，Raft的目标是提供更清晰的逻辑分工使得算法本身能被更好地理解，同时它安全性更高，并能提供一些额外的特性。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-1">1]</a>[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a>:1Raft能为在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%9B%86%E7%BE%A4">计算机集群</a>之间部署<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA">有限状态机</a>提供一种通用方法，并确保集群内的任意节点在某种状态转换上保持一致。Raft算法的开源实现众多，在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Go">Go</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/C%2B%2B">C++</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Java">Java</a>以及 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Scala">Scala</a>中都有完整的代码实现。Raft这一名字来源于”Reliable, Replicated, Redundant, And Fault-Tolerant”（“可靠、可复制、可冗余、可容错”）的首字母缩写。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-3">3]</a></p>
+<p>集群内的节点都对选举出的领袖采取信任，因此Raft不是一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8B%9C%E5%8D%A0%E5%BA%AD%E5%B0%86%E5%86%9B%E9%97%AE%E9%A2%98">拜占庭容错</a>算法。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a></p>
+</blockquote>
+<p>Raft使用<strong>选举领袖</strong>的方式做共识算法。一个典型的Raft cluster一般有5台服务器，这可以应对两次故障。</p>
+<p>在一个Raft cluster里，服务器有三种身份：</p>
+<ol>
+<li>领袖（leader）</li>
+<li>跟随者（follower）</li>
+<li>候选人（candidate）</li>
+</ol>
+<p><code>leader</code>在同一时间只会有一个，但不是一成不变的。剩下的服务器都是<code>follower</code>。</p>
+<p><code>leader</code>会处理所有的外部请求，如果一个服务器不是<code>leader</code>，那么这个请求会被转发到<code>leader</code>处理。</p>
+<p><code>leader</code>会在一个固定的时间段里给<code>follower</code>发送心跳（heartbeat），告诉<code>follower</code>：<em><strong>hi boys ! I am alive !</strong></em> 💋 </p>
+<p>每个<code>follower</code>都有自己的超时窗口（每个follower的timeout可能不一样），当超过一定时间没有收到<code>leader</code>的heartbeat之后，集群就会进入选举状态。🙋</p>
+<p>从下边三个方面来了解<code>raft</code></p>
+<ul>
+<li>领袖选举（Leader Election）</li>
+<li>记录复写（Log Replication）</li>
+<li>安全性（Safety）</li>
+</ul>
+<h2 id="领袖选举（leader-election）"><a href="#领袖选举（leader-election）" class="headerlink" title="领袖选举（leader election）"></a>领袖选举（leader election）</h2><img src="https://s3.bmp.ovh/imgs/2022/03/4f18033de732207c.png" srcset="/img/loading.gif" lazyload alt="image-20220309153949284" style="zoom:80%;" />
+
+<p>上图可以看出，所有的节点期初都是follower角色，如果在一段时间内没有收到leader的心跳（times out），那么便切换到candidate角色，然后发起选举（starts election）；如果收到大多数的投票，那么切换成leader角色；</p>
+<p>有两个<code>超时时间</code>（timeout）会影响leader election:</p>
+<h3 id="election-timeout"><a href="#election-timeout" class="headerlink" title="election timeout"></a><strong>election timeout</strong></h3><p>follower等待成为candidate的时间，这个时间在150ms~300ms的范围内是随机的。</p>
+<p>如果超过了这个timeout时间还没有收到leader的心跳，那么这个follower会做下边两件事：</p>
+<ol>
+<li>切换成candidate的角色</li>
+<li>它的Term : 0-&gt;1 and  Vote Count : 0 -&gt;1 </li>
+</ol>
+<p>然后，它会向其它所有节点（nodes）发送一个<em>投票请求</em>（<code>Request Vote</code>）。如果接受这个请求的节点在此任期（Term）内还没有投过票，那么就会投这个Request Vote的发起方，<u>并且将自己的election timeout重置</u>。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/03/dd72e822d6c9dfc3.png" srcset="/img/loading.gif" lazyload alt="image-20220309161641140" style="zoom: 50%;" />
+
+<p>当一个candidate节点有大多数的投票的时候，那么和这个节点切换为<code>leader</code>节点。</p>
+<h3 id="heartbeat-timeout"><a href="#heartbeat-timeout" class="headerlink" title="heartbeat timeout"></a>heartbeat timeout</h3><p>leader节点开始发送<code>Append Entries</code>信息到所有的follower节点，这些信息按照<strong>heartbeat timeout</strong>指定的时间间隔去发送。followers收到Append Entries请求后<u>会重置自己的election timeout并且做出响应</u>。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/03/ebe0ba4e35560cd4.png" srcset="/img/loading.gif" lazyload alt="image-20220309164255003" style="zoom:50%;" />
+
+<p>至此，这个任期（Term）将会一直存在，直到某一个follower收不到leader的心跳并且切换成了candidate角色。</p>
+<h3 id="NOTE"><a href="#NOTE" class="headerlink" title="NOTE"></a>NOTE</h3><ol>
+<li>在一个偶数的raft cluster中一旦leader不可用，剩下的几个candidate在同一时间可能有“脑裂”（split vote）的风险。当然这种case发生的概率还是极低的，只有在leader不可用时，剩下的candidate中有两个节点的剩余election time完全一致时才会发生。所以官方建议一个raft cluster最少要有五个节点。</li>
+<li>为了避免<code>split vote</code>，raft引入了<code>randomized election timeouts</code>避免平票的case发生。</li>
+<li>raft是一个<code>leader-based</code>共识算法，节点的数据尽量是奇数个，这样可以尽量保证<code>majority</code>的出现。</li>
+</ol>
+<h2 id="记录复写（log-replication）"><a href="#记录复写（log-replication）" class="headerlink" title="记录复写（log replication）"></a>记录复写（log replication）</h2><p>当集群中的leader被选举出来之后，客户端的所有请求都会发送到leader，leader来调度这些请求的顺序，并且要保证leader与followers状态的一致性。</p>
+<h3 id="Replicated-state-machines"><a href="#Replicated-state-machines" class="headerlink" title="Replicated state machines"></a>Replicated state machines</h3><p>共识算法一般是基于复制状态机（Replicated state machines）实现的。</p>
+<p>ps：<em>不展开了，有时间再专门写一篇</em>🏃‍♀️🏃‍♂️</p>
+<p>raft中，<code>leader</code>将客户端请求(command)封装成一个个<code>log entry</code>，然后将这些<code>log entries</code>复制（replicate）到所有的<code>follower</code>节点，然后所有节点按照顺序应用<code>log entry</code>中的<code>command</code>，那么大家最终的状态就是一致的了。</p>
+<img src="https://s3.bmp.ovh/imgs/2022/03/fb6457b7c11d6578.png" srcset="/img/loading.gif" lazyload alt="image-20220309215626133" style="zoom: 80%;" />
+
+<h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><ol>
+<li>client发了一个请求给到leader，leader将“变化”（change）添加（appended）到自己的log中。</li>
+<li>leader在下一次heartbeat时，将“变化”（change）发送到所有的followers</li>
+<li>一旦大多数follower承认了这个条目（entry），那么这个条目就会被提交（committed）<ol>
+<li>类似2PC，区别是leader不需要全部节点的回复，这样只要超过一半节点处于工作状态则系统就是可用的</li>
+</ol>
+</li>
+<li>leader将请求response发送到client</li>
+</ol>
+<h3 id="NOTE-1"><a href="#NOTE-1" class="headerlink" title="NOTE"></a>NOTE</h3><ul>
+<li>Raft可以在网络分区（network partitions）时保持一致</li>
+<li>raft算法为了保证高可用，并不是强一致的，而是最终一致的</li>
+</ul>
+<h2 id="安全性（safety）"><a href="#安全性（safety）" class="headerlink" title="安全性（safety）"></a>安全性（safety）</h2><p>没时间了，下次再说…🏃‍♂️</p>
+
+              
+            </div>
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/" class="category-chain-item">分布式一致性协议</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/raft/">#raft</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">#分布式</a>
+      
+        <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/">#一致性协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分布式一致性协议之Raft</div>
+      <div>https://hmydk.github.io/2022/03/09/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B9%8BRaft/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>摸鱼大师</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月9日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/" title="git-rebase入门教程">
+                        <span class="hidden-mobile">git-rebase入门教程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.16/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"xd4CQ1dkKzB1Xrx4ut9WmQwR-gzGzoHsz","appKey":"p61496GWF6riYNUzsenO0hJA","path":"window.location.pathname","placeholder":"说点什么","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问
+        <span id="leancloud-site-pv"></span>
+        次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客
+        <span id="leancloud-site-uv"></span>
+        人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.0/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script>
+  (function() {
+    var enableLang = CONFIG.code_language.enable && CONFIG.code_language.default;
+    var enableCopy = CONFIG.copy_btn;
+    if (!enableLang && !enableCopy) {
+      return;
+    }
+
+    function getBgClass(ele) {
+      return Fluid.utils.getBackgroundLightness(ele) >= 0 ? 'code-widget-light' : 'code-widget-dark';
+    }
+
+    var copyTmpl = '';
+    copyTmpl += '<div class="code-widget">';
+    copyTmpl += 'LANG';
+    copyTmpl += '</div>';
+    jQuery('.markdown-body pre').each(function() {
+      var $pre = jQuery(this);
+      if ($pre.find('code.mermaid').length > 0) {
+        return;
+      }
+      if ($pre.find('span.line').length > 0) {
+        return;
+      }
+
+      var lang = '';
+
+      if (enableLang) {
+        lang = CONFIG.code_language.default;
+        if ($pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2 && $pre.children().hasClass('hljs')) {
+          lang = $pre[0].children[0].classList[1];
+        } else if ($pre[0].getAttribute('data-language')) {
+          lang = $pre[0].getAttribute('data-language');
+        } else if ($pre.parent().hasClass('sourceCode') && $pre[0].children.length > 0 && $pre[0].children[0].classList.length >= 2) {
+          lang = $pre[0].children[0].classList[1];
+          $pre.parent().addClass('code-wrapper');
+        } else if ($pre.parent().hasClass('markdown-body') && $pre[0].classList.length === 0) {
+          $pre.wrap('<div class="code-wrapper"></div>');
+        }
+        lang = lang.toUpperCase().replace('NONE', CONFIG.code_language.default);
+      }
+      $pre.append(copyTmpl.replace('LANG', lang).replace('code-widget">',
+        getBgClass($pre[0]) + (enableCopy ? ' code-widget copy-btn" data-clipboard-snippet><i class="iconfont icon-copy"></i>' : ' code-widget">')));
+
+      if (enableCopy) {
+        Fluid.utils.createScript('https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js', function() {
+          var clipboard = new window.ClipboardJS('.copy-btn', {
+            target: function(trigger) {
+              var nodes = trigger.parentNode.childNodes;
+              for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].tagName === 'CODE') {
+                  return nodes[i];
+                }
+              }
+            }
+          });
+          clipboard.on('success', function(e) {
+            e.clearSelection();
+            e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-copy', 'icon-success');
+            setTimeout(function() {
+              e.trigger.innerHTML = e.trigger.innerHTML.replace('icon-success', 'icon-copy');
+            }, 2000);
+          });
+        });
+      }
+    });
+  })();
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

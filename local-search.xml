@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>分布式一致性协议之Raft</title>
+    <link href="/2022/03/09/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B9%8BRaft/"/>
+    <url>/2022/03/09/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B9%8BRaft/</url>
+    
+    <content type="html"><![CDATA[<p><img src="https://raft.github.io/logo/solo.svg"></p><p>最近看<code>RocketMQ</code>的时候，了解到v4.5.0之后，broker采用遵循raft协议的复制组来实现数据一致性。虎躯一震，raft协议在现在的脑子里变的熟悉又陌生…</p><p>问题不大，重新刷一遍raft。</p><p>先贴官网：<a href="https://raft.github.io/">The Raft Consensus Algorithm</a></p><p>再贴动画演示：<a href="http://thesecretlivesofdata.com/raft">Raft: Understandable Distributed Consensus</a></p><p>ps：里边的动图挺有意思😈</p><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ps:来自维基百科</p><blockquote><p><strong>Raft</strong>是一种用于替代<a href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>的<a href="https://zh.wikipedia.org/wiki/%E5%85%B1%E8%AD%98%E6%A9%9F%E5%88%B6">共识</a>算法。相比于<a href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>，Raft的目标是提供更清晰的逻辑分工使得算法本身能被更好地理解，同时它安全性更高，并能提供一些额外的特性。[<a href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-1">1]</a>[<a href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a>:1Raft能为在<a href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%9B%86%E7%BE%A4">计算机集群</a>之间部署<a href="https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA">有限状态机</a>提供一种通用方法，并确保集群内的任意节点在某种状态转换上保持一致。Raft算法的开源实现众多，在<a href="https://zh.wikipedia.org/wiki/Go">Go</a>、<a href="https://zh.wikipedia.org/wiki/C%2B%2B">C++</a>、<a href="https://zh.wikipedia.org/wiki/Java">Java</a>以及 <a href="https://zh.wikipedia.org/wiki/Scala">Scala</a>中都有完整的代码实现。Raft这一名字来源于”Reliable, Replicated, Redundant, And Fault-Tolerant”（“可靠、可复制、可冗余、可容错”）的首字母缩写。[<a href="https://zh.wikipedia.org/wiki/Raft#cite_note-3">3]</a></p><p>集群内的节点都对选举出的领袖采取信任，因此Raft不是一种<a href="https://zh.wikipedia.org/wiki/%E6%8B%9C%E5%8D%A0%E5%BA%AD%E5%B0%86%E5%86%9B%E9%97%AE%E9%A2%98">拜占庭容错</a>算法。[<a href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a></p></blockquote><p>Raft使用<strong>选举领袖</strong>的方式做共识算法。一个典型的Raft cluster一般有5台服务器，这可以应对两次故障。</p><p>在一个Raft cluster里，服务器有三种身份：</p><ol><li>领袖（leader）</li><li>跟随者（follower）</li><li>候选人（candidate）</li></ol><p><code>leader</code>在同一时间只会有一个，但不是一成不变的。剩下的服务器都是<code>follower</code>。</p><p><code>leader</code>会处理所有的外部请求，如果一个服务器不是<code>leader</code>，那么这个请求会被转发到<code>leader</code>处理。</p><p><code>leader</code>会在一个固定的时间段里给<code>follower</code>发送心跳（heartbeat），告诉<code>follower</code>：<em><strong>hi boys ! I am alive !</strong></em> 💋 </p><p>每个<code>follower</code>都有自己的超时窗口（每个follower的timeout可能不一样），当超过一定时间没有收到<code>leader</code>的heartbeat之后，集群就会进入选举状态。🙋</p><p>从下边三个方面来了解<code>raft</code></p><ul><li>领袖选举（Leader Election）</li><li>记录复写（Log Replication）</li><li>安全性（Safety）</li></ul><h2 id="领袖选举（leader-election）"><a href="#领袖选举（leader-election）" class="headerlink" title="领袖选举（leader election）"></a>领袖选举（leader election）</h2><img src="https://s3.bmp.ovh/imgs/2022/03/4f18033de732207c.png" alt="image-20220309153949284" style="zoom:80%;" /><p>上图可以看出，所有的节点期初都是follower角色，如果在一段时间内没有收到leader的心跳（times out），那么便切换到candidate角色，然后发起选举（starts election）；如果收到大多数的投票，那么切换成leader角色；</p><p>有两个<code>超时时间</code>（timeout）会影响leader election:</p><h3 id="election-timeout"><a href="#election-timeout" class="headerlink" title="election timeout"></a><strong>election timeout</strong></h3><p>follower等待成为candidate的时间，这个时间在150ms~300ms的范围内是随机的。</p><p>如果超过了这个timeout时间还没有收到leader的心跳，那么这个follower会做下边两件事：</p><ol><li>切换成candidate的角色</li><li>它的Term : 0-&gt;1 and  Vote Count : 0 -&gt;1 </li></ol><p>然后，它会向其它所有节点（nodes）发送一个<em>投票请求</em>（<code>Request Vote</code>）。如果接受这个请求的节点在此任期（Term）内还没有投过票，那么就会投这个Request Vote的发起方，<u>并且将自己的election timeout重置</u>。</p><img src="https://s3.bmp.ovh/imgs/2022/03/dd72e822d6c9dfc3.png" alt="image-20220309161641140" style="zoom: 50%;" /><p>当一个candidate节点有大多数的投票的时候，那么和这个节点切换为<code>leader</code>节点。</p><h3 id="heartbeat-timeout"><a href="#heartbeat-timeout" class="headerlink" title="heartbeat timeout"></a>heartbeat timeout</h3><p>leader节点开始发送<code>Append Entries</code>信息到所有的follower节点，这些信息按照<strong>heartbeat timeout</strong>指定的时间间隔去发送。followers收到Append Entries请求后<u>会重置自己的election timeout并且做出响应</u>。</p><img src="https://s3.bmp.ovh/imgs/2022/03/ebe0ba4e35560cd4.png" alt="image-20220309164255003" style="zoom:50%;" /><p>至此，这个任期（Term）将会一直存在，直到某一个follower收不到leader的心跳并且切换成了candidate角色。</p><h3 id="NOTE"><a href="#NOTE" class="headerlink" title="NOTE"></a>NOTE</h3><ol><li>在一个偶数的raft cluster中一旦leader不可用，剩下的几个candidate在同一时间可能有“脑裂”（split vote）的风险。当然这种case发生的概率还是极低的，只有在leader不可用时，剩下的candidate中有两个节点的剩余election time完全一致时才会发生。所以官方建议一个raft cluster最少要有五个节点。</li><li>为了避免<code>split vote</code>，raft引入了<code>randomized election timeouts</code>避免平票的case发生。</li><li>raft是一个<code>leader-based</code>共识算法，节点的数据尽量是奇数个，这样可以尽量保证<code>majority</code>的出现。</li></ol><h2 id="记录复写（log-replication）"><a href="#记录复写（log-replication）" class="headerlink" title="记录复写（log replication）"></a>记录复写（log replication）</h2><p>当集群中的leader被选举出来之后，客户端的所有请求都会发送到leader，leader来调度这些请求的顺序，并且要保证leader与followers状态的一致性。</p><h3 id="Replicated-state-machines"><a href="#Replicated-state-machines" class="headerlink" title="Replicated state machines"></a>Replicated state machines</h3><p>共识算法一般是基于复制状态机（Replicated state machines）实现的。</p><p>ps：<em>不展开了，有时间再专门写一篇</em>🏃‍♀️🏃‍♂️</p><p>raft中，<code>leader</code>将客户端请求(command)封装成一个个<code>log entry</code>，然后将这些<code>log entries</code>复制（replicate）到所有的<code>follower</code>节点，然后所有节点按照顺序应用<code>log entry</code>中的<code>command</code>，那么大家最终的状态就是一致的了。</p><img src="https://s3.bmp.ovh/imgs/2022/03/fb6457b7c11d6578.png" alt="image-20220309215626133" style="zoom: 80%;" /><h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><ol><li>client发了一个请求给到leader，leader将“变化”（change）添加（appended）到自己的log中。</li><li>leader在下一次heartbeat时，将“变化”（change）发送到所有的followers</li><li>一旦大多数follower承认了这个条目（entry），那么这个条目就会被提交（committed）<ol><li>类似2PC，区别是leader不需要全部节点的回复，这样只要超过一半节点处于工作状态则系统就是可用的</li></ol></li><li>leader将请求response发送到client</li></ol><h3 id="NOTE-1"><a href="#NOTE-1" class="headerlink" title="NOTE"></a>NOTE</h3><ul><li>Raft可以在网络分区（network partitions）时保持一致</li><li>raft算法为了保证高可用，并不是强一致的，而是最终一致的</li></ul><h2 id="安全性（safety）"><a href="#安全性（safety）" class="headerlink" title="安全性（safety）"></a>安全性（safety）</h2><p>没时间了，下次再说…🏃‍♂️</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>分布式一致性协议</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>raft</tag>
+      
+      <tag>分布式</tag>
+      
+      <tag>一致性协议</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>git-rebase入门教程</title>
     <link href="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/"/>
     <url>/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/</url>
