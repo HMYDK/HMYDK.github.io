@@ -19,19 +19,19 @@
     <meta name="description" content="rebase基础介绍git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。 git merge 作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。 优点：简单易上手&#x2F;保留了提交历史和时间次序&#x2F;分支结构不变 缺点：提交历史被大量的merge操作污染&#x2F;git bisect调试困难 git reba">
 <meta property="og:type" content="article">
 <meta property="og:title" content="git-rebase入门教程">
-<meta property="og:url" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:url" content="https://hmydk.github.io/2022/030854417.html">
 <meta property="og:site_name" content="摸鱼大师">
 <meta property="og:description" content="rebase基础介绍git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。 git merge 作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。 优点：简单易上手&#x2F;保留了提交历史和时间次序&#x2F;分支结构不变 缺点：提交历史被大量的merge操作污染&#x2F;git bisect调试困难 git reba">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/rebse-merge.png">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808225537689.png">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase.gif">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233344850.png">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233945968.png">
-<meta property="og:image" content="https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase-lisi-fix2.gif">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/rebse-merge.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/image-20210808225537689.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/git-rebase.gif">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/image-20210808233344850.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/image-20210808233945968.png">
+<meta property="og:image" content="https://hmydk.github.io/2022/030854417/git-rebase-lisi-fix2.gif">
 <meta property="article:published_time" content="2022-03-08T06:40:12.000Z">
-<meta property="article:modified_time" content="2022-03-08T07:45:04.700Z">
+<meta property="article:modified_time" content="2022-03-12T11:24:22.643Z">
 <meta property="article:author" content="摸鱼大师">
 <meta property="article:tag" content="git">
 <meta name="twitter:card" content="summary_large_image">
@@ -81,7 +81,8 @@
   <script  src="/js/color-schema.js" ></script>
 
   
-<meta name="generator" content="Hexo 5.4.1"></head>
+<meta name="generator" content="Hexo 5.4.1"><link rel="alternate" href="/atom.xml" title="摸鱼大师" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -304,7 +305,7 @@
 <p>作用：清除了历史，将一个分支完全转移到了目标分支</p>
 <p>优点：复杂的历史变成优雅的提交线</p>
 <p>缺点：分支上下文模糊了/dev分支以及feature分支需要经常更新release分支变动到本地</p>
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/rebse-merge.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/rebse-merge.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 
 
@@ -336,17 +337,17 @@
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git add .</span><br><span class="hljs-meta">$ </span><span class="language-bash">git commit -m <span class="hljs-string">&#x27;李四提交2&#x27;</span></span><br><span class="hljs-meta">$ </span><span class="language-bash">git push</span><br></code></pre></td></tr></table></figure>
 
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808225537689.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/image-20210808225537689.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 <h3 id="4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"><a href="#4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点" class="headerlink" title="4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"></a>4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git rebase -i 292141c  5b43fa0</span><br>-------------------------<br>pick 6e48844 张三提交1<br>pick 5f8e351 张三提交2     //进入编辑模式将第二行开始的pick全部修改成s，然后esc :wq保存，进入commit msg界面做整理<br><span class="hljs-meta"></span><br><span class="hljs-meta"># </span><span class="language-bash">Rebase 356a5c0..5f8e351 onto 356a5c0 (2 commands)</span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># Commands:</span></span><br><span class="hljs-meta"># </span><span class="language-bash">p, pick &lt;commit&gt; = use commit</span><br><span class="hljs-meta"># </span><span class="language-bash">r, reword &lt;commit&gt; = use commit, but edit the commit message</span><br><span class="hljs-meta"># </span><span class="language-bash">e, edit &lt;commit&gt; = use commit, but stop <span class="hljs-keyword">for</span> amending</span><br><span class="hljs-meta"># </span><span class="language-bash">s, squash &lt;commit&gt; = use commit, but meld into previous commit</span><br><span class="hljs-meta"># </span><span class="language-bash">f, fixup &lt;commit&gt; = like <span class="hljs-string">&quot;squash&quot;</span>, but discard this commit<span class="hljs-string">&#x27;s log message</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">x, exec &lt;command&gt; = run command (the rest of the line) using shell</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">b, break = stop here (continue rebase later with &#x27;</span>git rebase --<span class="hljs-built_in">continue</span><span class="hljs-string">&#x27;)</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">d, drop &lt;commit&gt; = remove commit</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">l, label &lt;label&gt; = label current HEAD with a name</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">t, reset &lt;label&gt; = reset HEAD to a label</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">m, merge [-C &lt;commit&gt; | -c &lt;commit&gt;] &lt;label&gt; [# &lt;oneline&gt;]</span></span><br><span class="hljs-meta"># </span><span class="language-bash"><span class="hljs-string">.       create a merge commit using the original merge commit&#x27;</span>s</span><br><span class="hljs-meta"># </span><span class="language-bash">.       message (or the oneline, <span class="hljs-keyword">if</span> no original merge commit was</span><br><span class="hljs-meta"># </span><span class="language-bash">.       specified). Use -c &lt;commit&gt; to reword the commit message.</span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># These lines can be re-ordered; they are executed from top to bottom.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># If you remove a line here THAT COMMIT WILL BE LOST.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"><span class="hljs-comment"># However, if you remove everything, the rebase will be aborted.</span></span><br><span class="hljs-meta">#</span><span class="language-bash"></span><br><span class="language-bash"></span><br><br></code></pre></td></tr></table></figure>
 
 
 
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/git-rebase.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 
 
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233344850.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/image-20210808233344850.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 
 
@@ -361,7 +362,7 @@
 
 
 
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/image-20210808233945968.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/image-20210808233945968.png" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 
 
@@ -385,7 +386,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$ </span><span class="language-bash">git pull --rebase</span><br>error: could not apply 49f99fb... lisi commit all<br>Resolve all conflicts manually, mark them as resolved with<br>&quot;git add/rm &lt;conflicted_files&gt;&quot;, then run &quot;git rebase --continue&quot;.<br>You can instead skip this commit: run &quot;git rebase --skip&quot;.<br>To abort and get back to the state before &quot;git rebase&quot;, run &quot;git rebase --abort&quot;.<br>Could not apply 49f99fb... lisi commit all<br>Auto-merging src/main/java/com/example/leetcode/editor/test/Test.java<br>CONFLICT (content): Merge conflict in src/main/java/com/example/leetcode/editor/test/Test.java<br></code></pre></td></tr></table></figure>
 
 <p>可以看到出现了冲突（CONFLICT），这时候需要到idea中处理冲突</p>
-<img src="/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/git-rebase-lisi-fix2.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
+<img src="/2022/030854417/git-rebase-lisi-fix2.gif" srcset="/img/loading.gif" lazyload class="" title="图片引用方法一">
 
 
 
@@ -472,7 +473,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>git-rebase入门教程</div>
-      <div>https://hmydk.github.io/2022/03/08/git-rebase%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/</div>
+      <div>https://hmydk.github.io/2022/030854417.html</div>
     </div>
     <div class="license-meta">
       
@@ -514,7 +515,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/03/09/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE%E4%B9%8BRaft/" title="分布式一致性协议之Raft">
+                      <a href="/2022/030923896.html" title="分布式一致性协议之Raft">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">分布式一致性协议之Raft</span>
                         <span class="visible-mobile">上一篇</span>
