@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>摸鱼大师</title>
   
-  
+  <subtitle>面向鱼塘编程</subtitle>
   <link href="https://hmydk.github.io/atom.xml" rel="self"/>
   
   <link href="https://hmydk.github.io/"/>
