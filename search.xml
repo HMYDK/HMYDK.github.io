@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>问答:RocketMQ</title>
+      <link href="/2022/031526519.html"/>
+      <url>/2022/031526519.html</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>基于RocketMQ v4.5.0之前的版本</p></blockquote><h4 id="Q：路由注册机制"><a href="#Q：路由注册机制" class="headerlink" title="Q：路由注册机制"></a>Q：路由注册机制</h4><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220314165017030.png" alt="image-20220314165017030" style="zoom: 50%;" /><ul><li>集群中所有的<code>Broker</code>每隔30s向所有的<code>NameServer</code>发送心跳包，<u>注册Topic路由信息</u>。</li><li><code>NameServer</code>在收到Broker端的心跳包时首先会<u>更新路由表，并记录收到心跳包的时间</u>。</li><li><code>NameServer</code>会启动一个定时任务每10s会扫描<code>Broker</code>，如果<code>NameServer</code>连续120s未收到<code>Broker</code>的心跳包，会判定<code>Broker</code>已下线，将从路由表中将此<code>Broker</code>剔除。</li><li>如果 <code>Nameserver</code> 与 <code>Broker</code> 端的长连接断开，<code>NameServer</code> 会立即感知 <code>Broker</code> 下线并从路由表中将该 <code>Broker</code> 移除。</li><li>消息客户端(消息发送者、消息消费者)在任意时刻<u>只会和其中一台</u> <code>NameServer</code> 建立 连接，并每隔 30s 向 <code>NameServer</code> 查询路由信息，如果查询到结果会<u>更新发送者的 本地路由信息</u>。</li></ul><h4 id="Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？"><a href="#Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？" class="headerlink" title="Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？"></a>Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？</h4><p>A：默认情况下，RocketMQ 消息消费者从<code>master</code>服务器拉取，当<code>master</code>服务器积压的消息超 过了物理内存的 40%，则建议从<code>slave</code>服务器拉取。但如果 slaveReadEnable 为 false，表示<code>slave</code>服务器不可读，<code>slave</code>服务器也不会接管消息拉取。</p><h4 id="Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？"><a href="#Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？" class="headerlink" title="Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？"></a>Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？</h4><p>A：不是的，分如下情况：</p><ol><li>如果<code>slave</code>服务器的 slaveReadEnable 设置为 false，则下次拉取，从<code>masrer</code>服务器拉取。 </li><li>如果<code>slave</code>服务器允许读取并且<code>slave</code>服务器积压的消息未超过其物理内存的 40%，下次拉取使用的 Broker 为订阅组的 brokerId 指定的 Broker 服务器，该值默认为 0，代表<code>master</code>服务器。</li><li>如果<code>slave</code>服务器允许读取并且<code>slave</code>服务器积压的消息超过了其物理内存的 40%，下次拉取使用的 Broker 为订阅组的 whichBrokerWhenConsumeSlowly 指定的 Broker 服 务器，该值默认为 1，代表<code>master</code>服务器。</li></ol><h4 id="Q：broker主从节点的消费进度是如何同步的？"><a href="#Q：broker主从节点的消费进度是如何同步的？" class="headerlink" title="Q：broker主从节点的消费进度是如何同步的？"></a>Q：broker主从节点的消费进度是如何同步的？</h4><p>A：</p><ul><li>消息消费进度的同步是单向的，<code>slave</code>服务器开启一个定时任务，定时从<code>master</code>服务器同步 消息消费进度；</li><li>无论消息消费者是从<code>master</code>服务器拉的消息还是从<code>slave</code>服务器拉取的消息，在向 Broker 反馈消息消费进度时，优先向<code>master</code>服务器汇报；</li><li>消息消费者向<code>master</code>服务器拉取消息时， 如果消息消费者内存中存在消息消费进度时，<code>masrer</code>会尝试更新消息消费进度。</li></ul><h4 id="Q：消息发送是如何实现高可用的？"><a href="#Q：消息发送是如何实现高可用的？" class="headerlink" title="Q：消息发送是如何实现高可用的？"></a>Q：消息发送是如何实现高可用的？</h4><blockquote><p>如果 Broker 端收到内存抖动等因素造成单条写入数据发生抖动，单个Broker 端积压的请求太大还得不到及时处理，会极大的造成客户端消息发送的延长时间，设想一下，如果由于 Broker 压力增大，写入一条消息需要 500ms 甚至超过1s，并且队列中积压了5000 条消息，消息发送端的默认超时时间为 3s，如果按照这样的速度，这些请求在轮到Broker 执行写入请求时，客户端已经将这个请求超时了，这样不仅会造成大量的无效处理，还会导致客户端发送超时。</p></blockquote><p>Broker端快速失败原理如下：</p><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220315141506789.png" alt="image-20220315141506789" style="zoom:80%;" /><ul><li>消息发送者向 Broker 发送消息写入请求，Broker 端在接收到请求后会首先放入一个队列中(SendThreadPoolQueue)，默认容量为 <u>10000</u>。</li><li>Broker 会专门使用一个线程池(SendMessageExecutor)去从队列中获取任务并执行消息写入请求，为了保证消息的顺序处理，该线程池默认线程个数为<u>1</u>。</li><li>开启一个定时调度线程，每隔 10 毫秒去检查队列中的第一个排队节点，如果该节点的排队时间已经超过了200 ms，就会取消该队列中所有已超过 200ms 的请求，立即向客户端返回失败，这样<u>客户端能尽快进行重试</u>，因为 Broker 都是集群部署，下次重试可以发送到其他Broker 上，这样能最大程度保证消息发送在默认 3s 的时间内经过重试机制，能有效避免某一台Broker 由于瞬时压力大而造成的消息发送不可用，从而实现消息发送的高可用。</li><li>业务上我们在发送消息时，应该做好异常捕获，将失败消息入库，借助定时任务做重试。</li></ul><h4 id="Q：RocketMQ路由寻找流程"><a href="#Q：RocketMQ路由寻找流程" class="headerlink" title="Q：RocketMQ路由寻找流程"></a>Q：RocketMQ路由寻找流程</h4><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220315161613014.png" alt="image-20220315161613014" style="zoom:80%;" /><ul><li>如果 <code>Broker</code> 开启了自动创建 Topic，在启动的时候会默认创建主题：<code>TBW102</code>，并会随着 <code>Broker</code> 发送到 <code>Nameserver</code> 的心跳包汇报给 <code>Nameserver</code>，继而从<code>Nameserver</code> 查询路由信息时能返回路由信息。 </li><li>消息发送者在消息发送时首先会查本地缓存，如果本地缓存中存在，直接返回路由信息。</li><li>如果缓存不存在，则向 <code>Nameserver</code> 查询路由信息，如果 <code>Nameserver</code> 存在该路由信息，就直接返回。 </li><li>如果 <code>Nameserver</code> 不存在该 topic 的路由信息，如果没有开启自动创建主题，则抛出No route info of this topic。 </li><li>如果开启了自动创建主题，则使用默认主题向 <code>Nameserver</code> 查询路由信息，并使用默认 Topic 的路由信息为自己的路由信息，将不会抛出 No route info of this topic。</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> RocketMQ </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> RocketMQ </tag>
+            
+            <tag> Q&amp;A </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>分布式一致性协议之Raft</title>
       <link href="/2022/030923896.html"/>
       <url>/2022/030923896.html</url>

@@ -6,7 +6,7 @@
   <link href="https://hmydk.github.io/atom.xml" rel="self"/>
   
   <link href="https://hmydk.github.io/"/>
-  <updated>2022-03-13T06:11:54.697Z</updated>
+  <updated>2022-03-15T09:22:04.764Z</updated>
   <id>https://hmydk.github.io/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>问答:RocketMQ</title>
+    <link href="https://hmydk.github.io/2022/031526519.html"/>
+    <id>https://hmydk.github.io/2022/031526519.html</id>
+    <published>2022-03-15T09:15:55.000Z</published>
+    <updated>2022-03-15T09:22:04.764Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;基于RocketMQ v4.5.0之前的版本&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;Q：路由注册机制&quot;&gt;&lt;a href=&quot;#Q：路由注册机制&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="RocketMQ" scheme="https://hmydk.github.io/categories/RocketMQ/"/>
+    
+    
+    <category term="RocketMQ" scheme="https://hmydk.github.io/tags/RocketMQ/"/>
+    
+    <category term="Q&amp;A" scheme="https://hmydk.github.io/tags/Q-A/"/>
+    
+  </entry>
   
   <entry>
     <title>分布式一致性协议之Raft</title>

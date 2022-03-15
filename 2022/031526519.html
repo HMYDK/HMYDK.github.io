@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="git-rebase入门教程, 摸鱼大师">
+    <meta name="keywords" content="问答:RocketMQ, 摸鱼大师">
     <meta name="description" content="摸鱼大师的杂物间">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>git-rebase入门教程 | 摸鱼大师</title>
+    <title>问答:RocketMQ | 摸鱼大师</title>
     <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/libs/awesome/css/all.css">
@@ -248,12 +248,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/medias/featureimages/12.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/20220315171928.png')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">git-rebase入门教程</h1>
+                    <h1 class="description center-align post-title">问答:RocketMQ</h1>
                 </div>
             </div>
         </div>
@@ -369,8 +369,12 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/git/">
-                                <span class="chip bg-color">git</span>
+                            <a href="/tags/RocketMQ/">
+                                <span class="chip bg-color">RocketMQ</span>
+                            </a>
+                        
+                            <a href="/tags/Q-A/">
+                                <span class="chip bg-color">Q&amp;A</span>
                             </a>
                         
                     </div>
@@ -381,8 +385,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/git/" class="post-category">
-                                git
+                            <a href="/categories/RocketMQ/" class="post-category">
+                                RocketMQ
                             </a>
                         
                     </div>
@@ -394,7 +398,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-03-08
+                    2022-03-15
                 </div>
                 
 
@@ -403,14 +407,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.9k
+                    1.4k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    8 分
+                    4 分
                 </div>
                 
 
@@ -433,231 +437,53 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <img src="https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg" style="zoom: 150%;" />
-
-
-
-<h2 id="rebase基础介绍"><a href="#rebase基础介绍" class="headerlink" title="rebase基础介绍"></a>rebase基础介绍</h2><p>git代码合并有两种，git merge 和 git rebase 。两者目的相同，都是把不同分支的提交合并到一起，但是过程有差异。</p>
-<p><strong>git merge</strong></p>
-<p>作用：把源分支的提交合并到目标分支。过程中，目标分支改变，源分支不变。</p>
-<p>优点：简单易上手/保留了提交历史和时间次序/分支结构不变</p>
-<p>缺点：提交历史被大量的merge操作污染/<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2018/12/git-bisect.html">git bisect</a>调试困难</p>
-<p><strong>git rebase</strong></p>
-<p>作用：清除了历史，将一个分支完全转移到了目标分支</p>
-<p>优点：复杂的历史变成优雅的提交线</p>
-<p>缺点：分支上下文模糊了/dev分支以及feature分支需要经常更新release分支变动到本地</p>
-<img src="/2022/030854417/rebse-merge.png" class="" title="图片引用方法一">
-
-
-
-
-
-
-
-<h2 id="使用rebase时，正确的git-flow是怎样的"><a href="#使用rebase时，正确的git-flow是怎样的" class="headerlink" title="使用rebase时，正确的git flow是怎样的"></a>使用rebase时，正确的git flow是怎样的</h2><ul>
-<li>每个feature分支都有单独的分支负责人，分支负责人需要在feature分支开发过程中每天rebase  release分支，同时告诉feature分支的自开发分支，及时跟进更新。</li>
-<li>feature子分支开发人员需要在开发完自己的任务之后，将自己分支的点合并成一个点，然后合并到feature分支。</li>
-<li>feature分支负责人在确定所有子分支都已开发完毕并且都压点后合并到feature分支后，交付测试验收。</li>
-<li>测试验收通过后将feature到release分支等待上线。</li>
-</ul>
-<h3 id="1-feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。"><a href="#1-feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。" class="headerlink" title="1.feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。"></a>1.<strong>feature负责人拉出功能分支，并告知功能开发人员相关分支已拉出，可以创建自己的开发分支。</strong></h3><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git checkout -b feature-xxx
-$ git push --set-upstream origin feature-xxx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="2-feature开发人员拉出属于自己的业务开发分支"><a href="#2-feature开发人员拉出属于自己的业务开发分支" class="headerlink" title="2.feature开发人员拉出属于自己的业务开发分支"></a>2.<strong>feature开发人员拉出属于自己的业务开发分支</strong></h3><p>张三</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git checkout -b feature-xxx-zhangsan
-$ git push --set-upstream origin feature-xxx-zhangsan<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>李四</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git checkout -b feature-xxx-lisi
-$ git push --set-upstream origin feature-xxx-lisi<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="3-feature开发人员开始做业务开发"><a href="#3-feature开发人员开始做业务开发" class="headerlink" title="3.feature开发人员开始做业务开发"></a>3.<strong>feature开发人员开始做业务开发</strong></h3><p>张三</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git add .
-$ git commit -m &#39;张三提交1&#39;
-$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git add .
-$ git commit -m &#39;张三提交2&#39;
-$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>李四</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git add .
-$ git commit -m &#39;李四提交1&#39;
-$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git add .
-$ git commit -m &#39;李四提交2&#39;
-$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<img src="/2022/030854417/image-20210808225537689.png" class="" title="图片引用方法一">
-
-<h3 id="4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"><a href="#4-fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点" class="headerlink" title="4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点"></a>4.fearure开发人员完成自己的开发任务之后将自己的提交记录合并成一个点</h3><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git rebase -i 292141c  5b43fa0
--------------------------
-pick 6e48844 张三提交1
-pick 5f8e351 张三提交2     &#x2F;&#x2F;进入编辑模式将第二行开始的pick全部修改成s，然后esc :wq保存，进入commit msg界面做整理
-
-# Rebase 356a5c0..5f8e351 onto 356a5c0 (2 commands)
-#
-# Commands:
-# p, pick &lt;commit&gt; &#x3D; use commit
-# r, reword &lt;commit&gt; &#x3D; use commit, but edit the commit message
-# e, edit &lt;commit&gt; &#x3D; use commit, but stop for amending
-# s, squash &lt;commit&gt; &#x3D; use commit, but meld into previous commit
-# f, fixup &lt;commit&gt; &#x3D; like &quot;squash&quot;, but discard this commit&#39;s log message
-# x, exec &lt;command&gt; &#x3D; run command (the rest of the line) using shell
-# b, break &#x3D; stop here (continue rebase later with &#39;git rebase --continue&#39;)
-# d, drop &lt;commit&gt; &#x3D; remove commit
-# l, label &lt;label&gt; &#x3D; label current HEAD with a name
-# t, reset &lt;label&gt; &#x3D; reset HEAD to a label
-# m, merge [-C &lt;commit&gt; | -c &lt;commit&gt;] &lt;label&gt; [# &lt;oneline&gt;]
-# .       create a merge commit using the original merge commit&#39;s
-# .       message (or the oneline, if no original merge commit was
-# .       specified). Use -c &lt;commit&gt; to reword the commit message.
-#
-# These lines can be re-ordered; they are executed from top to bottom.
-#
-# If you remove a line here THAT COMMIT WILL BE LOST.
-#
-# However, if you remove everything, the rebase will be aborted.
-#
-
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-
-<img src="/2022/030854417/git-rebase.gif" class="" title="图片引用方法一">
-
-
-
-<img src="/2022/030854417/image-20210808233344850.png" class="" title="图片引用方法一">
-
-
-
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git status
-On branch feature-xxx-zhangsan
-Your branch and &#39;origin&#x2F;feature-xxx-zhangsan&#39; have diverged,
-and have 1 and 2 different commits each, respectively.
-  (use &quot;git pull&quot; to merge the remote branch into yours)
-
-nothing to commit, working tree clean
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>idea git 中可以看到feature-xxx-zhangsan的本地分支已经将两次提交合并成<strong>一个点</strong></p>
-<blockquote>
-<p>have 1 and 2 different commits each, respectively.</p>
+                <blockquote>
+<p>基于RocketMQ v4.5.0之前的版本</p>
 </blockquote>
-<p>此时需要将本地分支<strong>强推</strong>到远程分支</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git push -f <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="Q：路由注册机制"><a href="#Q：路由注册机制" class="headerlink" title="Q：路由注册机制"></a>Q：路由注册机制</h4><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220314165017030.png" alt="image-20220314165017030" style="zoom: 50%;" />
 
 
 
-<img src="/2022/030854417/image-20210808233945968.png" class="" title="图片引用方法一">
-
-
-
-<h3 id="5-合并到feature分支"><a href="#5-合并到feature分支" class="headerlink" title="5.合并到feature分支"></a>5.合并到feature分支</h3><p>先保证本地的feature分支是最新的</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git checkout feature-xxx
-$ git pull
-$ git status<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>合并分支</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git rebase feature-xxx-zhangsan feature-xxx
-Successfully rebased and updated refs&#x2F;heads&#x2F;feature-xxx.
-
-注意此时的本地分支已经切换到feature-xxx，也就是rebase命令的第二个参数
-gir rebase branchA branchB其实会做两件事情
-	1.git checkout branchB
-	2.git rebase branchA
-$ git branch
-* feature-xxx
-  feature-xxx-lisi
-  feature-xxx-zhangsan
-  main<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git status
-On branch feature-xxx
-Your branch is ahead of &#39;origin&#x2F;feature-xxx&#39; by 1 commit.
-  (use &quot;git push&quot; to publish your local commits)
-
-nothing to commit, working tree clean<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>git status可以看到feature-xxx分支上已经有了feature-xxx-zhangsan分支合并的点</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="6-合并到功能分支的时候出现冲突怎么办"><a href="#6-合并到功能分支的时候出现冲突怎么办" class="headerlink" title="6.合并到功能分支的时候出现冲突怎么办"></a>6.合并到功能分支的时候出现冲突怎么办</h3><p>李四同样走了这个流程但是在合并到feature分支的时候遇到了麻烦，有代码冲突了</p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git rebase feature-xxx-lisi feature-xxx
-Successfully rebased and updated refs&#x2F;heads&#x2F;feature-xxx.
-
-$ git status
-On branch feature-xxx
-Your branch and &#39;origin&#x2F;feature-xxx&#39; have diverged,
-and have 1 and 1 different commits each, respectively.
-  (use &quot;git pull&quot; to merge the remote branch into yours)
-
-nothing to commit, working tree clean<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>git status看到功能分支feature-xxx有落后，这时候需要拉取落后的代码到本地</p>
-<p>注意这里不要直接使用git pull ，git pull 其实会做两个事情 git fetch + git merge , 会产生git提交记录的环线，这是我们要避免产生的事情。</p>
-<p><strong>请使用git pull –rebase</strong></p>
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git pull --rebase
-error: could not apply 49f99fb... lisi commit all
-Resolve all conflicts manually, mark them as resolved with
-&quot;git add&#x2F;rm &lt;conflicted_files&gt;&quot;, then run &quot;git rebase --continue&quot;.
-You can instead skip this commit: run &quot;git rebase --skip&quot;.
-To abort and get back to the state before &quot;git rebase&quot;, run &quot;git rebase --abort&quot;.
-Could not apply 49f99fb... lisi commit all
-Auto-merging src&#x2F;main&#x2F;java&#x2F;com&#x2F;example&#x2F;leetcode&#x2F;editor&#x2F;test&#x2F;Test.java
-CONFLICT (content): Merge conflict in src&#x2F;main&#x2F;java&#x2F;com&#x2F;example&#x2F;leetcode&#x2F;editor&#x2F;test&#x2F;Test.java<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>可以看到出现了冲突（CONFLICT），这时候需要到idea中处理冲突</p>
-<img src="/2022/030854417/git-rebase-lisi-fix2.gif" class="" title="图片引用方法一">
-
-
-
-<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">$ git status
-On branch feature-xxx
-Your branch is ahead of &#39;origin&#x2F;feature-xxx&#39; by 1 commit.
-  (use &quot;git push&quot; to publish your local commits)
-
-nothing to commit, working tree clean
-
-$ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-
-
-
-<h2 id="rebase常见问题"><a href="#rebase常见问题" class="headerlink" title="rebase常见问题"></a>rebase常见问题</h2><h3 id="1-作为一个feature负责人，发现落后release分支太多了怎么办"><a href="#1-作为一个feature负责人，发现落后release分支太多了怎么办" class="headerlink" title="1.作为一个feature负责人，发现落后release分支太多了怎么办"></a>1.作为一个feature负责人，发现落后release分支太多了怎么办</h3><p>出现这种情况有两种原因：</p>
 <ul>
-<li>feature分支太久没有关注release分支的状态，导致落后release分支太多</li>
-<li>release分支被人无脑提交，没有压点</li>
+<li>集群中所有的<code>Broker</code>每隔30s向所有的<code>NameServer</code>发送心跳包，<u>注册Topic路由信息</u>。</li>
+<li><code>NameServer</code>在收到Broker端的心跳包时首先会<u>更新路由表，并记录收到心跳包的时间</u>。</li>
+<li><code>NameServer</code>会启动一个定时任务每10s会扫描<code>Broker</code>，如果<code>NameServer</code>连续120s未收到<code>Broker</code>的心跳包，会判定<code>Broker</code>已下线，将从路由表中将此<code>Broker</code>剔除。</li>
+<li>如果 <code>Nameserver</code> 与 <code>Broker</code> 端的长连接断开，<code>NameServer</code> 会立即感知 <code>Broker</code> 下线并从路由表中将该 <code>Broker</code> 移除。</li>
+<li>消息客户端(消息发送者、消息消费者)在任意时刻<u>只会和其中一台</u> <code>NameServer</code> 建立 连接，并每隔 30s 向 <code>NameServer</code> 查询路由信息，如果查询到结果会<u>更新发送者的 本地路由信息</u>。</li>
 </ul>
-<p>第二种情况是要<strong>极力避免</strong>的，这种不负责任的提交很可能导致各个feature分支后续的rebase提交需要解决多次冲突</p>
-<p>第一种情况怎么解决：</p>
-<ul>
-<li>先尝试直接rebase release，如果没有冲突或者只需要解决一两次冲突，那么就采用直接rebase的方式。</li>
-<li>如果rebase release方式有冲突的点很多，那么可以采用将feature分支压点然后切换到release分支使用cherry-pick的方式做代码合并，然后重新创建feature分支，或者set-up-stream重新指向远程feature分支。</li>
-</ul>
-<h3 id="2-有人把开发主干分支压点然后强推了怎么办"><a href="#2-有人把开发主干分支压点然后强推了怎么办" class="headerlink" title="2.有人把开发主干分支压点然后强推了怎么办"></a>2.有人把开发主干分支压点然后强推了怎么办</h3><p><em><strong>注意：使用rebase的方式，如果分支是个公共分支，那么不允许rebase，这会打乱别人本地仓库的git提交线</strong></em></p>
-<h2 id="commit-msg规范"><a href="#commit-msg规范" class="headerlink" title="commit msg规范"></a>commit msg规范</h2><ul>
-<li>feat：新功能（feature）</li>
-<li>fix：bug修复</li>
-<li>refactor：重构</li>
-<li>test：补充单元测试</li>
-<li>docs：补充文档</li>
-<li>style：样式/格式，不影响业务代码 or 逻辑</li>
-</ul>
-<p>提交描述的时候，如果涉及多个内容，则使用1.2.3做标注</p>
+<h4 id="Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？"><a href="#Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？" class="headerlink" title="Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？"></a>Q：broker主从服务器都在运行过程中，消息消费是从主节点拉取还是从节点拉取？</h4><p>A：默认情况下，RocketMQ 消息消费者从<code>master</code>服务器拉取，当<code>master</code>服务器积压的消息超 过了物理内存的 40%，则建议从<code>slave</code>服务器拉取。但如果 slaveReadEnable 为 false，表示<code>slave</code>服务器不可读，<code>slave</code>服务器也不会接管消息拉取。</p>
+<h4 id="Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？"><a href="#Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？" class="headerlink" title="Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？"></a>Q：当消息消费者向slave服务器拉取消息后，会一直从slave服务器拉取？</h4><p>A：不是的，分如下情况：</p>
 <ol>
-<li>做了什么</li>
-<li>做了什么</li>
-<li>做了什么</li>
+<li>如果<code>slave</code>服务器的 slaveReadEnable 设置为 false，则下次拉取，从<code>masrer</code>服务器拉取。 </li>
+<li>如果<code>slave</code>服务器允许读取并且<code>slave</code>服务器积压的消息未超过其物理内存的 40%，下次拉取使用的 Broker 为订阅组的 brokerId 指定的 Broker 服务器，该值默认为 0，代表<code>master</code>服务器。</li>
+<li>如果<code>slave</code>服务器允许读取并且<code>slave</code>服务器积压的消息超过了其物理内存的 40%，下次拉取使用的 Broker 为订阅组的 whichBrokerWhenConsumeSlowly 指定的 Broker 服 务器，该值默认为 1，代表<code>master</code>服务器。</li>
 </ol>
-<h2 id="一定要注意的事情"><a href="#一定要注意的事情" class="headerlink" title="一定要注意的事情"></a>一定要注意的事情</h2><ul>
-<li>做任何操作的<strong>前后</strong>都<strong>一定</strong>要 git  status查看工作区状态</li>
-<li>自己的分支可以git push -f ，但是<strong>公共分支，一定不要这么做！</strong></li>
-<li>不要对公共分支做压点操作，<strong>永远不要！</strong></li>
-<li>使用git pull –rebase <strong>一定</strong>是正确的。尽量不要使用git pull，一有冲突就会merge</li>
+<h4 id="Q：broker主从节点的消费进度是如何同步的？"><a href="#Q：broker主从节点的消费进度是如何同步的？" class="headerlink" title="Q：broker主从节点的消费进度是如何同步的？"></a>Q：broker主从节点的消费进度是如何同步的？</h4><p>A：</p>
+<ul>
+<li>消息消费进度的同步是单向的，<code>slave</code>服务器开启一个定时任务，定时从<code>master</code>服务器同步 消息消费进度；</li>
+<li>无论消息消费者是从<code>master</code>服务器拉的消息还是从<code>slave</code>服务器拉取的消息，在向 Broker 反馈消息消费进度时，优先向<code>master</code>服务器汇报；</li>
+<li>消息消费者向<code>master</code>服务器拉取消息时， 如果消息消费者内存中存在消息消费进度时，<code>masrer</code>会尝试更新消息消费进度。</li>
+</ul>
+<h4 id="Q：消息发送是如何实现高可用的？"><a href="#Q：消息发送是如何实现高可用的？" class="headerlink" title="Q：消息发送是如何实现高可用的？"></a>Q：消息发送是如何实现高可用的？</h4><blockquote>
+<p>如果 Broker 端收到内存抖动等因素造成单条写入数据发生抖动，单个Broker 端积压的请求太大还得不到及时处理，会极大的造成客户端消息发送的延长时间，设想一下，如果由于 Broker 压力增大，写入一条消息需要 500ms 甚至超过1s，并且队列中积压了5000 条消息，消息发送端的默认超时时间为 3s，如果按照这样的速度，这些请求在轮到Broker 执行写入请求时，客户端已经将这个请求超时了，这样不仅会造成大量的无效处理，还会导致客户端发送超时。</p>
+</blockquote>
+<p>Broker端快速失败原理如下：</p>
+<img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220315141506789.png" alt="image-20220315141506789" style="zoom:80%;" />
+
+<ul>
+<li>消息发送者向 Broker 发送消息写入请求，Broker 端在接收到请求后会首先放入一个队列中(SendThreadPoolQueue)，默认容量为 <u>10000</u>。</li>
+<li>Broker 会专门使用一个线程池(SendMessageExecutor)去从队列中获取任务并执行消息写入请求，为了保证消息的顺序处理，该线程池默认线程个数为<u>1</u>。</li>
+<li>开启一个定时调度线程，每隔 10 毫秒去检查队列中的第一个排队节点，如果该节点的排队时间已经超过了200 ms，就会取消该队列中所有已超过 200ms 的请求，立即向客户端返回失败，这样<u>客户端能尽快进行重试</u>，因为 Broker 都是集群部署，下次重试可以发送到其他Broker 上，这样能最大程度保证消息发送在默认 3s 的时间内经过重试机制，能有效避免某一台Broker 由于瞬时压力大而造成的消息发送不可用，从而实现消息发送的高可用。</li>
+<li>业务上我们在发送消息时，应该做好异常捕获，将失败消息入库，借助定时任务做重试。</li>
+</ul>
+<h4 id="Q：RocketMQ路由寻找流程"><a href="#Q：RocketMQ路由寻找流程" class="headerlink" title="Q：RocketMQ路由寻找流程"></a>Q：RocketMQ路由寻找流程</h4><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220315161613014.png" alt="image-20220315161613014" style="zoom:80%;" />
+
+<ul>
+<li>如果 <code>Broker</code> 开启了自动创建 Topic，在启动的时候会默认创建主题：<code>TBW102</code>，并会随着 <code>Broker</code> 发送到 <code>Nameserver</code> 的心跳包汇报给 <code>Nameserver</code>，继而从<code>Nameserver</code> 查询路由信息时能返回路由信息。 </li>
+<li>消息发送者在消息发送时首先会查本地缓存，如果本地缓存中存在，直接返回路由信息。</li>
+<li>如果缓存不存在，则向 <code>Nameserver</code> 查询路由信息，如果 <code>Nameserver</code> 存在该路由信息，就直接返回。 </li>
+<li>如果 <code>Nameserver</code> 不存在该 topic 的路由信息，如果没有开启自动创建主题，则抛出No route info of this topic。 </li>
+<li>如果开启了自动创建主题，则使用默认主题向 <code>Nameserver</code> 查询路由信息，并使用默认 Topic 的路由信息为自己的路由信息，将不会抛出 No route info of this topic。</li>
 </ul>
 
                 
@@ -685,7 +511,7 @@ $ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://hmydk.github.io/2022/030854417.html">https://hmydk.github.io/2022/030854417.html</a>
+                    <a href="https://hmydk.github.io/2022/031526519.html">https://hmydk.github.io/2022/031526519.html</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -723,8 +549,12 @@ $ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/git/">
-                                    <span class="chip bg-color">git</span>
+                                <a href="/tags/RocketMQ/">
+                                    <span class="chip bg-color">RocketMQ</span>
+                                </a>
+                            
+                                <a href="/tags/Q-A/">
+                                    <span class="chip bg-color">Q&amp;A</span>
                                 </a>
                             
                         </div>
@@ -1031,9 +861,63 @@ $ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2022/031526519.html">
+                    <div class="card-image">
+                        
+                        <img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/20220315171928.png" class="responsive-img" alt="问答:RocketMQ">
+                        
+                        <span class="card-title">问答:RocketMQ</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-15
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/RocketMQ/" class="post-category">
+                                    RocketMQ
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/RocketMQ/">
+                        <span class="chip bg-color">RocketMQ</span>
+                    </a>
+                    
+                    <a href="/tags/Q-A/">
+                        <span class="chip bg-color">Q&amp;A</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
             <div class="card">
                 <a href="/2022/030923896.html">
                     <div class="card-image">
@@ -1050,9 +934,9 @@ $ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-09
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-09
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1078,56 +962,6 @@ $ git push<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
                     
                     <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/">
                         <span class="chip bg-color">一致性协议</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                本篇&nbsp;<i class="far fa-dot-circle"></i>
-            </div>
-            <div class="card">
-                <a href="/2022/030854417.html">
-                    <div class="card-image">
-                        
-                        
-                        <img src="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/medias/featureimages/12.jpg" class="responsive-img" alt="git-rebase入门教程">
-                        
-                        <span class="card-title">git-rebase入门教程</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-08
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/git/" class="post-category">
-                                    git
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/git/">
-                        <span class="chip bg-color">git</span>
                     </a>
                     
                 </div>
