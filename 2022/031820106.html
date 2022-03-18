@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="分布式一致性协议之Raft, 摸鱼大师">
+    <meta name="keywords" content="leetcode常用技巧/算法汇总, 摸鱼大师">
     <meta name="description" content="摸鱼大师的杂物间">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>分布式一致性协议之Raft | 摸鱼大师</title>
+    <title>leetcode常用技巧/算法汇总 | 摸鱼大师</title>
     <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/libs/awesome/css/all.css">
@@ -248,12 +248,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('https://raft.github.io/logo/solo.svg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://static.leetcode-cn.com/cn-mono-assets/production/assets/logo-dark-cn.c42314a8.svg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">分布式一致性协议之Raft</h1>
+                    <h1 class="description center-align post-title">leetcode常用技巧/算法汇总</h1>
                 </div>
             </div>
         </div>
@@ -369,16 +369,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/raft/">
-                                <span class="chip bg-color">raft</span>
-                            </a>
-                        
-                            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">
-                                <span class="chip bg-color">分布式</span>
-                            </a>
-                        
-                            <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/">
-                                <span class="chip bg-color">一致性协议</span>
+                            <a href="/tags/leetcode/">
+                                <span class="chip bg-color">leetcode</span>
                             </a>
                         
                     </div>
@@ -389,8 +381,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/" class="post-category">
-                                分布式一致性协议
+                            <a href="/categories/leetcode/" class="post-category">
+                                leetcode
                             </a>
                         
                     </div>
@@ -402,7 +394,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-03-09
+                    2022-03-18
                 </div>
                 
 
@@ -411,14 +403,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.4k
+                    487
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    5 分
+                    1 分
                 </div>
                 
 
@@ -441,76 +433,25 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>最近看<code>RocketMQ</code>的时候，了解到v4.5.0之后，broker采用遵循raft协议的复制组来实现数据一致性。虎躯一震，raft协议在现在的脑子里变的熟悉又陌生…</p>
-<p>问题不大，重新刷一遍raft。</p>
-<p>先贴官网：<a target="_blank" rel="noopener" href="https://raft.github.io/">The Raft Consensus Algorithm</a></p>
-<p>再贴动画演示：<a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft">Raft: Understandable Distributed Consensus</a></p>
-<p>ps：里边的动图挺有意思😈</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>ps:来自维基百科</p>
-<blockquote>
-<p><strong>Raft</strong>是一种用于替代<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%85%B1%E8%AD%98%E6%A9%9F%E5%88%B6">共识</a>算法。相比于<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Paxos">Paxos</a>，Raft的目标是提供更清晰的逻辑分工使得算法本身能被更好地理解，同时它安全性更高，并能提供一些额外的特性。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-1">1]</a>[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a>:1Raft能为在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%9B%86%E7%BE%A4">计算机集群</a>之间部署<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E6%9C%BA">有限状态机</a>提供一种通用方法，并确保集群内的任意节点在某种状态转换上保持一致。Raft算法的开源实现众多，在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Go">Go</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/C%2B%2B">C++</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Java">Java</a>以及 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Scala">Scala</a>中都有完整的代码实现。Raft这一名字来源于”Reliable, Replicated, Redundant, And Fault-Tolerant”（“可靠、可复制、可冗余、可容错”）的首字母缩写。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-3">3]</a></p>
-<p>集群内的节点都对选举出的领袖采取信任，因此Raft不是一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8B%9C%E5%8D%A0%E5%BA%AD%E5%B0%86%E5%86%9B%E9%97%AE%E9%A2%98">拜占庭容错</a>算法。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Raft#cite_note-raft-paper-2">2]</a></p>
+                <h2 id="贪心算法"><a href="#贪心算法" class="headerlink" title="贪心算法"></a>贪心算法</h2><h4 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h4><blockquote>
+<p><strong>贪心算法</strong>（英语：greedy algorithm），又称<strong>贪婪算法</strong>，是一种在每一步选择中都采取在当前状态下最好或最优（即最有利）的选择，从而希望导致结果是最好或最优的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%AE%97%E6%B3%95">算法</a>。[<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95#cite_note-paike-1">1]</a>比如在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%97%85%E8%A1%8C%E6%8E%A8%E9%94%80%E5%91%98%E9%97%AE%E9%A2%98">旅行推销员问题</a>中，如果旅行员每次都选择最近的城市，那这就是一种贪心算法。</p>
+<p>贪心算法在有最优子结构的问题中尤为有效。最优子结构的意思是局部最优解能决定全局最优解。简单地说，问题能够分解成子问题来解决，子问题的最优解能递推到最终问题的最优解。</p>
+<p>贪心算法与<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92">动态规划</a>的不同在于它对每个子问题的解决方案都做出选择，不能回退。动态规划则会保存以前的运算结果，并根据以前的结果对当前进行选择，有回退功能。</p>
+<p>贪心法可以解决一些<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E4%BC%98%E5%8C%96">最优化</a>问题，如：求<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9B%BE">图</a>中的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91">最小生成树</a>、求<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%93%88%E5%A4%AB%E6%9B%BC%E7%BC%96%E7%A0%81">哈夫曼编码</a>……对于其他问题，贪心法一般不能得到我们所要求的答案。一旦一个问题可以通过贪心法来解决，那么贪心法一般是解决这个问题的最好办法。由于贪心法的高效性以及其所求得的答案比较接近最优结果，贪心法也可以用作辅助算法或者直接解决一些要求结果不特别精确的问题。在不同情况，选择最优的解，可能会导致辛普森悖论（Simpson’s Paradox），不一定出现最优的解。</p>
+<p>贪心算法在数据科学领域被广泛应用，特别是金融工程。其中一个贪心算法例子就是Ensemble method。</p>
 </blockquote>
-<p>Raft使用<strong>选举领袖</strong>的方式做共识算法。一个典型的Raft cluster一般有5台服务器，这可以应对两次故障。</p>
-<p>在一个Raft cluster里，服务器有三种身份：</p>
-<ol>
-<li>领袖（leader）</li>
-<li>跟随者（follower）</li>
-<li>候选人（candidate）</li>
-</ol>
-<p><code>leader</code>在同一时间只会有一个，但不是一成不变的。剩下的服务器都是<code>follower</code>。</p>
-<p><code>leader</code>会处理所有的外部请求，如果一个服务器不是<code>leader</code>，那么这个请求会被转发到<code>leader</code>处理。</p>
-<p><code>leader</code>会在一个固定的时间段里给<code>follower</code>发送心跳（heartbeat），告诉<code>follower</code>：<em><strong>hi boys ! I am alive !</strong></em> 💋 </p>
-<p>每个<code>follower</code>都有自己的超时窗口（每个follower的timeout可能不一样），当超过一定时间没有收到<code>leader</code>的heartbeat之后，集群就会进入选举状态。🙋</p>
-<p>从下边三个方面来了解<code>raft</code></p>
-<ul>
-<li>领袖选举（Leader Election）</li>
-<li>记录复写（Log Replication）</li>
-<li>安全性（Safety）</li>
-</ul>
-<h2 id="领袖选举（leader-election）"><a href="#领袖选举（leader-election）" class="headerlink" title="领袖选举（leader election）"></a>领袖选举（leader election）</h2><img src="https://s3.bmp.ovh/imgs/2022/03/4f18033de732207c.png" alt="image-20220309153949284" style="zoom:80%;" />
-
-<p>上图可以看出，所有的节点期初都是follower角色，如果在一段时间内没有收到leader的心跳（times out），那么便切换到candidate角色，然后发起选举（starts election）；如果收到大多数的投票，那么切换成leader角色；</p>
-<p>有两个<code>超时时间</code>（timeout）会影响leader election:</p>
-<h3 id="election-timeout"><a href="#election-timeout" class="headerlink" title="election timeout"></a><strong>election timeout</strong></h3><p>follower等待成为candidate的时间，这个时间在150ms~300ms的范围内是随机的。</p>
-<p>如果超过了这个timeout时间还没有收到leader的心跳，那么这个follower会做下边两件事：</p>
-<ol>
-<li>切换成candidate的角色</li>
-<li>它的Term : 0-&gt;1 and  Vote Count : 0 -&gt;1 </li>
-</ol>
-<p>然后，它会向其它所有节点（nodes）发送一个<em>投票请求</em>（<code>Request Vote</code>）。如果接受这个请求的节点在此任期（Term）内还没有投过票，那么就会投这个Request Vote的发起方，<u>并且将自己的election timeout重置</u>。</p>
-<img src="https://s3.bmp.ovh/imgs/2022/03/dd72e822d6c9dfc3.png" alt="image-20220309161641140" style="zoom: 50%;" />
-
-<p>当一个candidate节点有大多数的投票的时候，那么和这个节点切换为<code>leader</code>节点。</p>
-<h3 id="heartbeat-timeout"><a href="#heartbeat-timeout" class="headerlink" title="heartbeat timeout"></a>heartbeat timeout</h3><p>leader节点开始发送<code>Append Entries</code>信息到所有的follower节点，这些信息按照<strong>heartbeat timeout</strong>指定的时间间隔去发送。followers收到Append Entries请求后<u>会重置自己的election timeout并且做出响应</u>。</p>
-<img src="https://s3.bmp.ovh/imgs/2022/03/ebe0ba4e35560cd4.png" alt="image-20220309164255003" style="zoom:50%;" />
-
-<p>至此，这个任期（Term）将会一直存在，直到某一个follower收不到leader的心跳并且切换成了candidate角色。</p>
-<h3 id="NOTE"><a href="#NOTE" class="headerlink" title="NOTE"></a>NOTE</h3><ol>
-<li>在一个偶数的raft cluster中一旦leader不可用，剩下的几个candidate在同一时间可能有“脑裂”（split vote）的风险。当然这种case发生的概率还是极低的，只有在leader不可用时，剩下的candidate中有两个节点的剩余election time完全一致时才会发生。所以官方建议一个raft cluster最少要有五个节点。</li>
-<li>为了避免<code>split vote</code>，raft引入了<code>randomized election timeouts</code>避免平票的case发生。</li>
-<li>raft是一个<code>leader-based</code>共识算法，节点的数据尽量是奇数个，这样可以尽量保证<code>majority</code>的出现。</li>
-</ol>
-<h2 id="记录复写（log-replication）"><a href="#记录复写（log-replication）" class="headerlink" title="记录复写（log replication）"></a>记录复写（log replication）</h2><p>当集群中的leader被选举出来之后，客户端的所有请求都会发送到leader，leader来调度这些请求的顺序，并且要保证leader与followers状态的一致性。</p>
-<h3 id="Replicated-state-machines"><a href="#Replicated-state-machines" class="headerlink" title="Replicated state machines"></a>Replicated state machines</h3><p>共识算法一般是基于复制状态机（Replicated state machines）实现的。</p>
-<p>ps：<em>不展开了，有时间再专门写一篇</em>🏃‍♀️🏃‍♂️</p>
-<p>raft中，<code>leader</code>将客户端请求(command)封装成一个个<code>log entry</code>，然后将这些<code>log entries</code>复制（replicate）到所有的<code>follower</code>节点，然后所有节点按照顺序应用<code>log entry</code>中的<code>command</code>，那么大家最终的状态就是一致的了。</p>
-<img src="https://s3.bmp.ovh/imgs/2022/03/fb6457b7c11d6578.png" alt="image-20220309215626133" style="zoom: 80%;" />
-
-<h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><ol>
-<li>client发了一个请求给到leader，leader将“变化”（change）添加（appended）到自己的log中。</li>
-<li>leader在下一次heartbeat时，将“变化”（change）发送到所有的followers</li>
-<li>一旦大多数follower承认了这个条目（entry），那么这个条目就会被提交（committed）<ol>
-<li>类似2PC，区别是leader不需要全部节点的回复，这样只要超过一半节点处于工作状态则系统就是可用的</li>
-</ol>
-</li>
-<li>leader将请求response发送到client</li>
-</ol>
-<h3 id="NOTE-1"><a href="#NOTE-1" class="headerlink" title="NOTE"></a>NOTE</h3><ul>
-<li>Raft可以在网络分区（network partitions）时保持一致</li>
-<li>raft算法为了保证高可用，并不是强一致的，而是最终一致的</li>
-</ul>
-<h2 id="安全性（safety）"><a href="#安全性（safety）" class="headerlink" title="安全性（safety）"></a>安全性（safety）</h2><p>没时间了，下次再说…🏃‍♂️</p>
+<h4 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h4><table>
+<thead>
+<tr>
+<th align="center">题目</th>
+<th align="center">难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-ii/">122. 买卖股票的最佳时机 II</a></td>
+<td align="center">中等</td>
+</tr>
+</tbody></table>
 
                 
             </div>
@@ -537,7 +478,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://hmydk.github.io/2022/030923896.html">https://hmydk.github.io/2022/030923896.html</a>
+                    <a href="https://hmydk.github.io/2022/031820106.html">https://hmydk.github.io/2022/031820106.html</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -575,16 +516,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/raft/">
-                                    <span class="chip bg-color">raft</span>
-                                </a>
-                            
-                                <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">
-                                    <span class="chip bg-color">分布式</span>
-                                </a>
-                            
-                                <a href="/tags/%E4%B8%80%E8%87%B4%E6%80%A7%E5%8D%8F%E8%AE%AE/">
-                                    <span class="chip bg-color">一致性协议</span>
+                                <a href="/tags/leetcode/">
+                                    <span class="chip bg-color">leetcode</span>
                                 </a>
                             
                         </div>
@@ -891,9 +824,59 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2022/031820106.html">
+                    <div class="card-image">
+                        
+                        <img src="https://static.leetcode-cn.com/cn-mono-assets/production/assets/logo-dark-cn.c42314a8.svg" class="responsive-img" alt="leetcode常用技巧/算法汇总">
+                        
+                        <span class="card-title">leetcode常用技巧/算法汇总</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-18
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/leetcode/" class="post-category">
+                                    leetcode
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/leetcode/">
+                        <span class="chip bg-color">leetcode</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
             <div class="card">
                 <a href="/2022/031526519.html">
                     <div class="card-image">
@@ -910,9 +893,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-15
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-15
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -934,55 +917,6 @@
                     
                     <a href="/tags/Q-A/">
                         <span class="chip bg-color">Q&amp;A</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2022/030854417.html">
-                    <div class="card-image">
-                        
-                        
-                        <img src="https://cdn.jsdelivr.net/gh/HMYDK/HMYDK.github.io/medias/featureimages/12.jpg" class="responsive-img" alt="git-rebase入门教程">
-                        
-                        <span class="card-title">git-rebase入门教程</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-08
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/git/" class="post-category">
-                                    git
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/git/">
-                        <span class="chip bg-color">git</span>
                     </a>
                     
                 </div>

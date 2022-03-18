@@ -6,7 +6,7 @@
   <link href="https://hmydk.github.io/atom.xml" rel="self"/>
   
   <link href="https://hmydk.github.io/"/>
-  <updated>2022-03-15T09:22:04.764Z</updated>
+  <updated>2022-03-18T11:42:03.738Z</updated>
   <id>https://hmydk.github.io/</id>
   
   <author>
@@ -17,11 +17,36 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>leetcode常用技巧/算法汇总</title>
+    <link href="https://hmydk.github.io/2022/031820106.html"/>
+    <id>https://hmydk.github.io/2022/031820106.html</id>
+    <published>2022-03-18T11:32:51.000Z</published>
+    <updated>2022-03-18T11:42:03.738Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;贪心算法&quot;&gt;&lt;a href=&quot;#贪心算法&quot; class=&quot;headerlink&quot; title=&quot;贪心算法&quot;&gt;&lt;/a&gt;贪心算法&lt;/h2&gt;&lt;h4 id=&quot;简述&quot;&gt;&lt;a href=&quot;#简述&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="leetcode" scheme="https://hmydk.github.io/categories/leetcode/"/>
+    
+    
+    <category term="leetcode" scheme="https://hmydk.github.io/tags/leetcode/"/>
+    
+  </entry>
+  
+  <entry>
     <title>问答:RocketMQ</title>
     <link href="https://hmydk.github.io/2022/031526519.html"/>
     <id>https://hmydk.github.io/2022/031526519.html</id>
     <published>2022-03-15T09:15:55.000Z</published>
-    <updated>2022-03-15T09:22:04.764Z</updated>
+    <updated>2022-03-18T11:29:38.194Z</updated>
     
     
       
@@ -31,7 +56,7 @@
     <summary type="html">&lt;blockquote&gt;
 &lt;p&gt;基于RocketMQ v4.5.0之前的版本&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h4 id=&quot;Q：路由注册机制&quot;&gt;&lt;a href=&quot;#Q：路由注册机制&quot; class=&quot;headerlink&quot;</summary>
+&lt;h4 id=&quot;Q：RocketMQ由哪些角色组成，每个角色作用和特点是什么？&quot;&gt;&lt;a</summary>
         
       
     

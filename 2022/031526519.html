@@ -407,14 +407,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.4k
+                    1.8k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    4 分
+                    6 分
                 </div>
                 
 
@@ -440,6 +440,43 @@
                 <blockquote>
 <p>基于RocketMQ v4.5.0之前的版本</p>
 </blockquote>
+<h4 id="Q：RocketMQ由哪些角色组成，每个角色作用和特点是什么？"><a href="#Q：RocketMQ由哪些角色组成，每个角色作用和特点是什么？" class="headerlink" title="Q：RocketMQ由哪些角色组成，每个角色作用和特点是什么？"></a>Q：RocketMQ由哪些角色组成，每个角色作用和特点是什么？</h4><table>
+<thead>
+<tr>
+<th align="center">角色</th>
+<th align="center">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">NameServer</td>
+<td align="center">无状态，动态列表；这也是和zookeeper的重要区别之一。zookeeper是有状态的。</td>
+</tr>
+<tr>
+<td align="center">Producer</td>
+<td align="center">消息生产者，负责发消息到Broker。</td>
+</tr>
+<tr>
+<td align="center">Broker</td>
+<td align="center">就是MQ本身，负责收发消息、持久化消息等。</td>
+</tr>
+<tr>
+<td align="center">Consumer</td>
+<td align="center">消息消费者，负责从Broker上拉取消息进行消费，消费完进行ack。</td>
+</tr>
+</tbody></table>
+<h4 id="Q：RocketMQ-Broker中的消息被消费后会立即删除吗？"><a href="#Q：RocketMQ-Broker中的消息被消费后会立即删除吗？" class="headerlink" title="Q：RocketMQ Broker中的消息被消费后会立即删除吗？"></a>Q：RocketMQ Broker中的消息被消费后会立即删除吗？</h4><p>不会，每条消息都会持久化到<code>CommitLog</code>中，每个<code>Consumer</code>连接到<code>Broker</code>后会维持消费进度信息，当有消息消费后只是当前<code>Consumer</code>的消费进度（CommitLog的offset）更新了。</p>
+<p>4.6版本默认48小时后会删除不再使用的CommitLog文件</p>
+<ul>
+<li>检查这个文件最后访问时间</li>
+<li>判断是否大于过期时间</li>
+<li>指定时间删除，默认凌晨4点</li>
+</ul>
+<h4 id="Q：RocketMQ消息是push还是pull？"><a href="#Q：RocketMQ消息是push还是pull？" class="headerlink" title="Q：RocketMQ消息是push还是pull？"></a>Q：RocketMQ消息是push还是pull？</h4><ul>
+<li>RocketMQ没有真正意义的push，都是pull，虽然有push类，但实际底层实现采用的是<strong>长轮询机制</strong>，即拉取方式。</li>
+<li>broker端属性 longPollingEnable 标记是否开启长轮询。默认开启</li>
+</ul>
+<h4 id="Q：为什么要主动拉取消息而不使用事件监听方式？"><a href="#Q：为什么要主动拉取消息而不使用事件监听方式？" class="headerlink" title="Q：为什么要主动拉取消息而不使用事件监听方式？"></a>Q：为什么要主动拉取消息而不使用事件监听方式？</h4><p>事件驱动方式是建立好长连接，由事件（发送数据）的方式来实时推送。</p>
+<p>如果<code>broker</code>主动推送消息的话有可能push速度快，消费速度慢的情况，那么就会造成<u>消息在 <code>Consumer</code> 端堆积过多，同时又不能被其他 <code>Consumer</code> 消费</u>的情况。而 pull 的方式可以根据当前自身情况来 pull，不会造成过多的压力而造成瓶颈。所以采取了 pull 的方式。</p>
 <h4 id="Q：路由注册机制"><a href="#Q：路由注册机制" class="headerlink" title="Q：路由注册机制"></a>Q：路由注册机制</h4><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220314165017030.png" alt="image-20220314165017030" style="zoom: 50%;" />
 
 
@@ -485,7 +522,7 @@
 <li>如果 <code>Nameserver</code> 不存在该 topic 的路由信息，如果没有开启自动创建主题，则抛出No route info of this topic。 </li>
 <li>如果开启了自动创建主题，则使用默认主题向 <code>Nameserver</code> 查询路由信息，并使用默认 Topic 的路由信息为自己的路由信息，将不会抛出 No route info of this topic。</li>
 </ul>
-
+<h4 id="Q：RocketMQ如何做负载均衡的？"><a href="#Q：RocketMQ如何做负载均衡的？" class="headerlink" title="Q：RocketMQ如何做负载均衡的？"></a>Q：RocketMQ如何做负载均衡的？</h4>
                 
             </div>
             <hr/>
@@ -861,17 +898,16 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/031526519.html">
+                <a href="/2022/031820106.html">
                     <div class="card-image">
                         
-                        <img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/20220315171928.png" class="responsive-img" alt="问答:RocketMQ">
+                        <img src="https://static.leetcode-cn.com/cn-mono-assets/production/assets/logo-dark-cn.c42314a8.svg" class="responsive-img" alt="leetcode常用技巧/算法汇总">
                         
-                        <span class="card-title">问答:RocketMQ</span>
+                        <span class="card-title">leetcode常用技巧/算法汇总</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -881,31 +917,26 @@
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-15
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-18
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/RocketMQ/" class="post-category">
-                                    RocketMQ
+                            <a href="/categories/leetcode/" class="post-category">
+                                    leetcode
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/RocketMQ/">
-                        <span class="chip bg-color">RocketMQ</span>
-                    </a>
-                    
-                    <a href="/tags/Q-A/">
-                        <span class="chip bg-color">Q&amp;A</span>
+                    <a href="/tags/leetcode/">
+                        <span class="chip bg-color">leetcode</span>
                     </a>
                     
                 </div>
@@ -1201,7 +1232,7 @@
             <br>
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">4.7k</span>&nbsp;字
+                class="white-color">5.6k</span>&nbsp;字
             
             
             
