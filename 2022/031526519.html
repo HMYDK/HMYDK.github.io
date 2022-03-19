@@ -407,14 +407,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    2.5k
+                    3.8k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    9 分
+                    13 分
                 </div>
                 
 
@@ -587,6 +587,60 @@
 </li>
 <li><p>集群部署，主从模式，高可用。</p>
 </li>
+</ul>
+<p><strong>Consumer端保证消息不丢失</strong></p>
+<ul>
+<li>完全正常消费之后进行手动ack确认</li>
+</ul>
+<h4 id="Q：RocketMQ的消息堆积如何处理？"><a href="#Q：RocketMQ的消息堆积如何处理？" class="headerlink" title="Q：RocketMQ的消息堆积如何处理？"></a>Q：RocketMQ的消息堆积如何处理？</h4><p>首先要找到是什么原因导致的消息堆积，是<code>Producer</code>太多了还是<code>Consumer</code>太少了或者其他情况，总之先定位一个大概的问题。</p>
+<p>再看下消息的消费速度是否正常，正常的话，那就上线更多的<code>Consumer</code>临时解决消息堆积的问题。</p>
+<h4 id="Q：堆积消息会超时删除么？"><a href="#Q：堆积消息会超时删除么？" class="headerlink" title="Q：堆积消息会超时删除么？"></a>Q：堆积消息会超时删除么？</h4><p>不会，RocketMQ中的消息只会在commitLog被删除的时候才会消失。也就是说未消费的消息不会存在超时删除这种情况。</p>
+<h4 id="Q：堆积的消息会不会进死信队列？"><a href="#Q：堆积的消息会不会进死信队列？" class="headerlink" title="Q：堆积的消息会不会进死信队列？"></a>Q：堆积的消息会不会进死信队列？</h4><p>不会，消息在消费失败之后会进入重试队列（%RETRY%+ConsumerGroup），18次才会进入死信队列（%DLQ%+ConsumerGroup）。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MessageStoreConfig</span> <span class="token punctuation">&#123;</span>
+    <span class="token comment">// 每隔如下时间会进行重试，到最后一次时间重试失败的话就进入死信队列了。</span>
+ <span class="token keyword">private</span> <span class="token class-name">String</span> messageDelayLevel <span class="token operator">=</span> <span class="token string">"1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h"</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h4 id="Q：RocketMQ-在分布式事务支持这块机制的底层原理"><a href="#Q：RocketMQ-在分布式事务支持这块机制的底层原理" class="headerlink" title="Q：RocketMQ 在分布式事务支持这块机制的底层原理?"></a>Q：RocketMQ 在分布式事务支持这块机制的底层原理?</h4><p>分布式系统中的事务可以使用<code>TCC</code>（Try、Confirm、Cancel）、<code>2pc</code>来解决分布式系统中的消息原子性</p>
+<p>RocketMQ 4.3+ 提供分布事务功能，通过 RocketMQ 事务消息能达到分布式事务的最终一致</p>
+<p><strong>RocketMQ实现方式：</strong></p>
+<ul>
+<li><strong>Half Message</strong>：<br>预处理消息，当<code>broker</code>收到此类消息后，会存储到<code>RMQ_SYS_TRANS_HALF_TOPIC</code>的消息消费队列中</li>
+<li><strong>检查事务状态</strong>：<br><code>Broker</code>会开启一个定时任务，消费<code>RMQ_SYS_TRANS_HALF_TOPIC</code>队列中的消息，每次执行任务会向消息发送者确认事务执行状态（提交、回滚、未知），如果是未知，<code>Broker</code>会定时去回调在重新检查。</li>
+<li><strong>超时</strong>：<br>如果超过回查次数，默认回滚消息。</li>
+</ul>
+<p><u>也就是事务消息并未真正进入Topic的queue，而是用了临时queue来放所谓的half message，等提交事务后才会真正的将half message转移到topic下的queue。</u></p>
+<h4 id="Q：高吞吐量下如何优化生产者和消费者的性能"><a href="#Q：高吞吐量下如何优化生产者和消费者的性能" class="headerlink" title="Q：高吞吐量下如何优化生产者和消费者的性能?"></a>Q：高吞吐量下如何优化生产者和消费者的性能?</h4><ul>
+<li>开发<ul>
+<li>同一group下，多机部署，并行消费</li>
+<li>单个Consumer提高消费线程个数</li>
+<li>批量消费<ul>
+<li>消息批量拉取</li>
+<li>业务逻辑批量处理</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>运维<ul>
+<li>网卡调优</li>
+<li>jvm调优</li>
+<li>多线程与cpu调优</li>
+<li>Page Cache</li>
+</ul>
+</li>
+</ul>
+<h4 id="Q：任何一台Broker突然宕机了怎么办？"><a href="#Q：任何一台Broker突然宕机了怎么办？" class="headerlink" title="Q：任何一台Broker突然宕机了怎么办？"></a>Q：任何一台Broker突然宕机了怎么办？</h4><p><code>Broker</code>主从架构以及多副本策略。<code>Master</code> 收到消息后会同步给 <code>Slave</code>，这样一条消息就不止一份了，<code>Master</code> 宕机了还有 <code>slave</code> 中的消息可用，保证了MQ的可靠性和高可用性。而且 Rocket MQ4.5.0 开始就支持了 <code>Dlegder</code> 模式，基于 <code>raft</code>的，做到了真正意义的 <code>HA</code>(highly available)。</p>
+<h4 id="Q：Master-Broker-突然挂了，这样会怎么样？"><a href="#Q：Master-Broker-突然挂了，这样会怎么样？" class="headerlink" title="Q：Master Broker 突然挂了，这样会怎么样？"></a>Q：Master Broker 突然挂了，这样会怎么样？</h4><p><strong>RocketMQ 4.5 版本之前</strong>，用 Slave Broker 同步数据，尽量保证数据不丢失，但是一旦 Master 故障了，Slave 是没法自动切换成 Master 的。<br>所以在这种情况下，如果 Master Broker 宕机了，这时就得手动做一些运维操作，把 Slave Broker 重新修改一些配置，重启机器给调整为Master Broker，这是有点麻烦的，而且会导致中间一段时间不可用。</p>
+<p><strong>RocketMQ 4.5之后</strong>支持了一种叫做 Dledger 机制，基于 Raft 协议实现的一个机制。<br>我们可以让一个 Master Broker 对应多个 Slave Broker， 一旦 Master Broker 宕机了，在多个 Slave 中通过 Dledger 技术 将一个 Slave Broker 选为新的 Master Broker 对外提供服务。<br>在生产环境中可以是用 Dledger 机制实现自动故障切换，只要10秒或者几十秒的时间就可以完成</p>
+<h4 id="Q：Broker把自己的信息注册到哪个NameServer上？"><a href="#Q：Broker把自己的信息注册到哪个NameServer上？" class="headerlink" title="Q：Broker把自己的信息注册到哪个NameServer上？"></a>Q：Broker把自己的信息注册到哪个NameServer上？</h4><p>每个<code>Broker</code>向所有的<code>NameServer</code>上注册自己的信息，即每个<code>NameServer</code>上有所有的<code>Broker</code>信息</p>
+<h4 id="Q：NameServer到底可以部署几台机器？为什么要集群化部署？"><a href="#Q：NameServer到底可以部署几台机器？为什么要集群化部署？" class="headerlink" title="Q：NameServer到底可以部署几台机器？为什么要集群化部署？"></a>Q：NameServer到底可以部署几台机器？为什么要集群化部署？</h4><p>部署多台，保证高可用性。</p>
+<p>集群化部署是为了高可用性，<code>NameServer</code> 是集群里非常关键的一个角色,如果部署一台 <code>NameServer</code>，宕机会导致 RocketMQ 集群出现故障，所以 <code>NameServer</code> 一定会多机器部署，实现一个集群，起到高可用的效果。</p>
+<h4 id="Q：消费消息时是从Master获取还是Slave获取？"><a href="#Q：消费消息时是从Master获取还是Slave获取？" class="headerlink" title="Q：消费消息时是从Master获取还是Slave获取？"></a>Q：消费消息时是从Master获取还是Slave获取？</h4><p>可能从Master Broker获取消息，也有可能从Slave Broker获取消息</p>
+<ul>
+<li>消费者的系统在获取消息的时候会先发送请求到Master Broker上去，请求获取一批消息，此时Master Broker是会返回一批消息给消费者系统的</li>
+<li>Master Broker在返回消息给消费者系统的时候，会根据当时Master Broker的 负载情况和Slave Broker的同步情况，向消费者系统建议下一次拉取消息的时候是从Master Broker拉取还是从Slave Broker拉取。</li>
 </ul>
 
                 
@@ -1298,7 +1352,7 @@
             <br>
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">6.3k</span>&nbsp;字
+                class="white-color">7.5k</span>&nbsp;字
             
             
             
