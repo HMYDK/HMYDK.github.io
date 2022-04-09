@@ -4,6 +4,60 @@
   
     
     <entry>
+      <title>python-Djiango备忘</title>
+      <link href="/2022/04089069.html"/>
+      <url>/2022/04089069.html</url>
+      
+        <content type="html"><![CDATA[<p><a href="https://docs.djangoproject.com/zh-hans/4.0/">官方文档</a></p><h4 id="ORM"><a href="#ORM" class="headerlink" title="ORM"></a>ORM</h4><p>model.py中创建model结束之后，执行以下命令将变更同步到数据库</p><pre class="line-numbers language-shell" data-language="shell"><code class="language-shell"> python .\manage.py makemigrationspython .\manage.py mograte<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>执行完之后检查数据库是否做了变更同步</p><h4 id="F-amp-Q"><a href="#F-amp-Q" class="headerlink" title="F&amp;Q"></a>F&amp;Q</h4><h5 id="F"><a href="#F" class="headerlink" title="F"></a>F</h5><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220409160741869.png" alt="image-20220409160741869" style="zoom: 67%;" /><h5 id="Q"><a href="#Q" class="headerlink" title="Q"></a>Q</h5><img src="https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220409160537752.png" alt="image-20220409160537752" style="zoom:67%;" /><h5 id="原生sql"><a href="#原生sql" class="headerlink" title="原生sql"></a>原生sql</h5><p>django的orm还是需要一点点时间成本去学习的，单纯作为一个工具框架来用的话，大多数人可能更倾向于原生sql，我本人就是如此。</p><p><a href="https://docs.djangoproject.com/zh-hans/4.0/topics/db/sql/">执行原生 SQL 查询</a></p><p>这里有一点要注意，那就是sql注入，这也是直接使用原生sql而不是使用orm可能带来的问题。djanggo建议我们使用原生sql的时候不要直接拼接一个完整的sql到row()中执行，而是使用row(sql，parma)的方式执行，这样可以避免sql注入的问题产生。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Django </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> python </tag>
+            
+            <tag> Django </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>nginx</title>
+      <link href="/2022/040423896.html"/>
+      <url>/2022/040423896.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> nginx </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> nginx </tag>
+            
+            <tag> 反向代理 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>leetcode常用技巧/算法汇总</title>
       <link href="/2022/031820106.html"/>
       <url>/2022/031820106.html</url>

@@ -6,7 +6,7 @@
   <link href="https://hmydk.github.io/atom.xml" rel="self"/>
   
   <link href="https://hmydk.github.io/"/>
-  <updated>2022-03-19T10:02:05.224Z</updated>
+  <updated>2022-04-09T12:29:05.945Z</updated>
   <id>https://hmydk.github.io/</id>
   
   <author>
@@ -17,11 +17,58 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>python-Djiango备忘</title>
+    <link href="https://hmydk.github.io/2022/04089069.html"/>
+    <id>https://hmydk.github.io/2022/04089069.html</id>
+    <published>2022-04-08T08:51:31.000Z</published>
+    <updated>2022-04-09T12:29:05.945Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://docs.djangoproject.com/zh-hans/4.0/&quot;&gt;官方文档&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id=&quot;ORM&quot;&gt;&lt;a href=&quot;#ORM&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Django" scheme="https://hmydk.github.io/categories/Django/"/>
+    
+    
+    <category term="python" scheme="https://hmydk.github.io/tags/python/"/>
+    
+    <category term="Django" scheme="https://hmydk.github.io/tags/Django/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>nginx</title>
+    <link href="https://hmydk.github.io/2022/040423896.html"/>
+    <id>https://hmydk.github.io/2022/040423896.html</id>
+    <published>2022-04-04T13:39:56.000Z</published>
+    <updated>2022-04-04T13:41:00.606Z</updated>
+    
+    
+    
+    
+    <category term="nginx" scheme="https://hmydk.github.io/categories/nginx/"/>
+    
+    
+    <category term="nginx" scheme="https://hmydk.github.io/tags/nginx/"/>
+    
+    <category term="反向代理" scheme="https://hmydk.github.io/tags/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
     <title>leetcode常用技巧/算法汇总</title>
     <link href="https://hmydk.github.io/2022/031820106.html"/>
     <id>https://hmydk.github.io/2022/031820106.html</id>
     <published>2022-03-18T11:32:51.000Z</published>
-    <updated>2022-03-19T10:02:05.224Z</updated>
+    <updated>2022-03-19T10:02:40.145Z</updated>
     
     
       
