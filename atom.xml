@@ -6,7 +6,7 @@
   <link href="https://hmydk.github.io/atom.xml" rel="self"/>
   
   <link href="https://hmydk.github.io/"/>
-  <updated>2022-04-19T05:59:31.892Z</updated>
+  <updated>2022-05-10T03:15:09.276Z</updated>
   <id>https://hmydk.github.io/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>docker &amp; docker compose &amp; 云效流水线</title>
+    <link href="https://hmydk.github.io/2022/05105816.html"/>
+    <id>https://hmydk.github.io/2022/05105816.html</id>
+    <published>2022-05-10T02:01:22.000Z</published>
+    <updated>2022-05-10T03:15:09.276Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;docker&quot;&gt;&lt;a href=&quot;#docker&quot; class=&quot;headerlink&quot; title=&quot;docker&quot;&gt;&lt;/a&gt;docker&lt;/h3&gt;&lt;p&gt;安装&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
+        
+      
+    
+    
+    
+    <category term="docker" scheme="https://hmydk.github.io/categories/docker/"/>
+    
+    
+    <category term="docker" scheme="https://hmydk.github.io/tags/docker/"/>
+    
+    <category term="docker compose" scheme="https://hmydk.github.io/tags/docker-compose/"/>
+    
+  </entry>
   
   <entry>
     <title>Go语言基础备忘</title>
@@ -93,14 +121,15 @@
     <link href="https://hmydk.github.io/2022/031820106.html"/>
     <id>https://hmydk.github.io/2022/031820106.html</id>
     <published>2022-03-18T11:32:51.000Z</published>
-    <updated>2022-03-19T10:02:40.145Z</updated>
+    <updated>2022-05-09T07:48:52.324Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;贪心算法&quot;&gt;&lt;a href=&quot;#贪心算法&quot; class=&quot;headerlink&quot; title=&quot;贪心算法&quot;&gt;&lt;/a&gt;贪心算法&lt;/h2&gt;&lt;h3 id=&quot;简述&quot;&gt;&lt;a href=&quot;#简述&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;p&gt;&lt;img src=&quot;https://cdn.jsdelivr.net/gh/HMYDK/picb@main/img/image-20220422162806679.png&quot; alt=&quot;image-20220422162806679&quot;&gt;&lt;/p&gt;
+&lt;h2</summary>
         
       
     
